@@ -55,7 +55,8 @@ def resolve_urls(urls: List[str], name: str, n_threads=10):
                         resp = self.session.head(url, allow_redirects=True, timeout=1)
                         if resp and resp.ok:
                             self.expanded_urls[url] = resp.url
-                    except:
+                    except Exception as e:
+                        logger.error(e)
                         continue
 
     exitFlag = False
