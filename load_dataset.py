@@ -10,9 +10,10 @@ from nlp_utils import match_url
 
 logger = logging.getLogger('Load')
 engine = create_engine('mysql://root@127.0.0.1/ams')
+engine_m3 = create_engine('mysql://mquezada:phoophoh7ahdaiJahphoh3aicooz7uka3ahJe9oi@127.0.0.1/mquezada_db')
 
 
-def load(name: str) -> Tuple[DataFrame, DataFrame]:
+def load(name: str, engine) -> Tuple[DataFrame, DataFrame]:
     df = pd.read_sql_query("SELECT * from tweet", engine)
     logger.info(f"Loaded df '{name}' of dim {df.shape}")
 
@@ -23,7 +24,7 @@ def load(name: str) -> Tuple[DataFrame, DataFrame]:
     return df, urls_df
 
 
-def get_urls(name: str) -> List[str]:
+def get_urls(name: str, engine) -> List[str]:
     df = pd.read_sql_query("SELECT * from tweet", engine)
     logger.info(f"Loaded df '{name}' of dim {df.shape}")
 
