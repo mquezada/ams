@@ -61,16 +61,17 @@ def resolve_urls(urls: List[str], name: str, n_threads=10):
     curr = 1
 
     threads = []
-    logger.info(f'Spawning {n_threads} threads')
-    for _ in range(n_threads):
-        ur = URLResolver(q, expanded_urls, lock, session)
-        ur.start()
-        threads.append(ur)
 
     with lock:
         logger.info(f'Putting {total} urls into queue')
         for url in urls:
             q.put(url)
+
+    logger.info(f'Spawning {n_threads} threads')
+    for _ in range(n_threads):
+        ur = URLResolver(q, expanded_urls, lock, session)
+        ur.start()
+        threads.append(ur)
 
     while not q.empty():
         time.sleep(5)
