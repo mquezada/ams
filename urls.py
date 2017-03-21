@@ -1,15 +1,15 @@
-import pandas as pd
-from tqdm import trange
-from nlp_utils import match_url
-from typing import List
 import logging
 from pathlib import Path
-from settings import DATA_DIR
-from threading import Thread, Lock
-import requests
-import time
 from queue import Queue
+from threading import Thread, Lock
+from typing import List
 
+import pandas as pd
+import requests
+from tqdm import trange
+
+from nlp_utils import match_url
+from settings import DATA_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,9 @@ def resolve_urls(urls: List[str], name: str, n_threads=10):
             Thread.__init__(self)
             self.expanded_urls = expanded_urls
             self.lock = lock
+            self.session = requests.Session()
+            self.session.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 ' \
+                                                 '(KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36'
             self.queue = queue
 
         def run(self):
@@ -49,7 +52,7 @@ def resolve_urls(urls: List[str], name: str, n_threads=10):
                         curr += 1
                 if url:
                     try:
-                        resp = requests.head(url, allow_redirects=True, timeout=1)
+                        resp = self.session.head(url, allow_redirects=True, timeout=1)
                         if resp and resp.ok:
                             self.expanded_urls[url] = resp.url
                     except:
@@ -95,9 +98,6 @@ def resolve_urls(urls: List[str], name: str, n_threads=10):
     return expanded_urls
 
 
-
-
-
 if __name__ == 'test':
     import sys
 
@@ -114,6 +114,7 @@ if __name__ == 'test':
                  36881, 36882, 36892, 36898, 36899, 36904, 36917, 37042, 37058]
 
     from settings import engine_m3
+
     urls = get_urls(event_ids, engine_m3)
     urls = list(set(urls))
 
