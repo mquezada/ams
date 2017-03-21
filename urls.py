@@ -90,7 +90,7 @@ if __name__ == '__main__':
     curr = 1
     lock = Lock()
 
-    urls = list(set(urls[:128]))
+    urls = list(set(urls))
     total = len(urls)
 
     n_threads = 32
