@@ -28,9 +28,9 @@ def load(name: str, engine) -> Tuple[DataFrame, DataFrame]:
 
 def get_urls(event_ids: List[int], engine) -> List[str]:
     query = "SELECT * from tweet where event_id_id in ({})"
-    query.format(','.join('?' * len(event_ids)))
+    query = query.format(','.join(map(str, event_ids)))
 
-    df = pd.read_sql_query(query, engine, event_ids)
+    df = pd.read_sql_query(query, engine)
     logger.info(f"Loaded df of dim {df.shape}")
 
     texts = df['text']
