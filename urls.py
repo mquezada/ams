@@ -30,11 +30,10 @@ def get_urls(event_ids: List[int], engine) -> List[str]:
 
 def resolve_urls(urls: List[str], name: str, n_threads=10):
     class URLResolver(Thread):
-        def __init__(self, queue, expanded_urls, lock, session):
+        def __init__(self, queue, expanded_urls, lock):
             Thread.__init__(self)
             self.expanded_urls = expanded_urls
             self.lock = lock
-            self.session = session
             self.queue = queue
 
         def run(self):
@@ -45,12 +44,16 @@ def resolve_urls(urls: List[str], name: str, n_threads=10):
                 with self.lock:
                     if not self.queue.empty():
                         url = self.queue.get()
-                        logger.info(f'URL {curr} of {total}: {url}')
+                        if curr % 1000 == 0:
+                            logger.info(f'URL {curr} of {total}: {url}')
                         curr += 1
                 if url:
-                    resp = self.session.head(url, allow_redirects=True)
-                    if resp and resp.ok:
-                        self.expanded_urls[url] = resp.url
+                    try:
+                        resp = requests.head(url, allow_redirects=True, timeout=1)
+                        if resp and resp.ok:
+                            self.expanded_urls[url] = resp.url
+                    except:
+                        continue
 
     exitFlag = False
     lock = Lock()
@@ -79,6 +82,7 @@ def resolve_urls(urls: List[str], name: str, n_threads=10):
     logger.info(f'Done')
     exitFlag = True
 
+    logger.info('Joining threads')
     for t in threads:
         t.join()
 
