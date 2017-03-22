@@ -31,11 +31,11 @@ def get_urls(event_ids: List[int], engine) -> List[str]:
     return urls
 
 
-def unshorten_urls(name: str, dataset: List[int], n_threads):
+def unshorten_urls(name: str, dataset: List[int], n_urls=None, n_threads=32):
     logging.basicConfig(format='%(asctime)s | %(levelname)s : %(message)s', level=logging.INFO, stream=sys.stdout)
 
     def resolve_url(url):
-        global curr
+        nonlocal curr
 
         with lock:
             logger.info(f"URL {curr} of {total}")
@@ -80,7 +80,10 @@ def unshorten_urls(name: str, dataset: List[int], n_threads):
     curr = 1
     lock = Lock()
 
-    urls = list(set(urls))
+    if n_urls:
+        urls = list(set(urls[:n_urls]))
+    else:
+        urls = list(set(urls))
     total = len(urls)
 
     logger.info(f'Spawning {n_threads} threads')
