@@ -15,14 +15,15 @@ def create_documents(tweets_df: DataFrame, urls_df: DataFrame):
         row = urls_df.loc[i]
         urls_dict[row['tweet_url']] = row['expanded_url']
 
-    texts = tweets_df['text']
+    texts = tweets_df[['text', 'tweet_id']]
     documents = defaultdict(list)
 
     for i in trange(len(texts), desc="Creating docs"):
-        text = texts[i]
+        text = texts[i]['text']
+        t_id = texts[i]['tweet_id']
         matches = nlp_utils.match_url(text)
         for match in matches:
             expanded_url = urls_dict.get(match, match)
-            documents[expanded_url].append(text)
+            documents[expanded_url].append(t_id)
 
     return documents
