@@ -17,9 +17,9 @@ from settings import DATA_DIR
 logger = logging.getLogger(__name__)
 
 
-def get_urls(event_ids: List[int], engine) -> List[str]:
+def get_urls(dataset: List[int], engine) -> List[str]:
     query = "SELECT * from tweet where event_id_id in ({})"
-    query = query.format(','.join(map(str, event_ids)))
+    query = query.format(','.join(map(str, dataset)))
 
     df = pd.read_sql_query(query, engine)
     logger.info(f"Loaded df of dim {df.shape}")
@@ -34,6 +34,8 @@ def get_urls(event_ids: List[int], engine) -> List[str]:
 def unshorten_urls(name: str, dataset: List[int], n_urls=None, n_threads=32):
     logging.basicConfig(format='%(asctime)s | %(levelname)s : %(message)s', level=logging.INFO, stream=sys.stdout)
 
+    import bs4
+
     def resolve_url(url):
         nonlocal curr
 
@@ -42,9 +44,15 @@ def unshorten_urls(name: str, dataset: List[int], n_urls=None, n_threads=32):
             curr += 1
 
         try:
-            resp = requests.head(url, allow_redirects=True, timeout=5)
+            resp = requests.get(url, allow_redirects=True, timeout=5)
             if resp and resp.ok:
-                return resp.url
+                html = bs4.BeautifulSoup(resp.text, "html5lib")
+                title = None
+                if html:
+                    title = html.title
+                    if title:
+                        title = title.text
+                return resp.url, title
         except TooManyRedirects:
             logger.error(f"URL {url} too many redirects")
         except ReadTimeout:
@@ -60,9 +68,9 @@ def unshorten_urls(name: str, dataset: List[int], n_urls=None, n_threads=32):
             if url is None:
                 q.task_done()
                 break
-            expanded = resolve_url(url)
-            if expanded:
-                expanded_urls[url] = expanded
+            expanded_title = resolve_url(url)
+            if expanded_title:
+                expanded_urls[url] = tuple(expanded_title)
             q.task_done()
 
     event_ids = dataset
@@ -109,7 +117,12 @@ def unshorten_urls(name: str, dataset: List[int], n_urls=None, n_threads=32):
     logger.info(f'Saving data...')
     data_path = DATA_DIR / Path(name) / Path('resolved_urls.txt')
     with open(data_path.as_posix(), 'w') as f:
-        for short, expanded in expanded_urls.items():
-            f.write(f'{short} {expanded}\n')
+        for short, (expanded, title) in expanded_urls.items():
+            f.write(f'{short}\t{expanded}\t{title}\n')
 
     logger.info("Exiting main thread")
+
+
+if __name__ == '__main__':
+    from settings import Datasets, engine
+    unshorten_urls('oscar pistorius', Datasets.oscar_pistorius)

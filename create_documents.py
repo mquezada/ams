@@ -1,5 +1,5 @@
 from pandas.core.frame import DataFrame
-from tqdm import trange
+from tqdm import tqdm
 from collections import defaultdict
 
 import logging
@@ -9,21 +9,39 @@ import nlp_utils
 logger = logging.getLogger(__name__)
 
 
-def create_documents(tweets_df: DataFrame, urls_df: DataFrame):
+def create_documents(tweets_df: DataFrame,
+                     urls_df: DataFrame,
+                     ignore_unresolved: bool = False,
+                     include_no_url_tweets: bool = False,
+                     contents: str = "ids"):
+
+    assert contents in ("ids", "texts")
+
     urls_dict = dict()
-    for i in trange(len(urls_df), desc="Creating URLs dict"):
-        row = urls_df.loc[i]
+    for _, row in tqdm(urls_df.iterrows(), desc="Creating URLs dict", total=urls_df.shape[0]):
         urls_dict[row['tweet_url']] = row['expanded_url']
 
-    texts = tweets_df[['text', 'tweet_id']]
     documents = defaultdict(list)
 
-    for i in trange(len(texts), desc="Creating docs"):
-        text = texts[i]['text']
-        t_id = texts[i]['tweet_id']
+    for _, row in tqdm(tweets_df.iterrows(), desc="Creating documents", total=tweets_df.shape[0]):
+        text = row['text']
+
+        if contents == "ids":
+            t_id = row['tweet_id']
+        else:
+            t_id = row['text']
+
         matches = nlp_utils.match_url(text)
         for match in matches:
-            expanded_url = urls_dict.get(match, match)
+            expanded_url = urls_dict.get(match, None)
+
+            if ignore_unresolved and expanded_url is None:
+                continue
+
             documents[expanded_url].append(t_id)
 
+        if include_no_url_tweets and not matches:
+            documents[_].append(t_id)
+
+    logger.info(f'Total {len(documents)} documents.')
     return documents

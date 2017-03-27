@@ -2,13 +2,16 @@ import pandas as pd
 from pandas.core.frame import DataFrame
 from pathlib import Path
 import logging
-from typing import Tuple
+from typing import Tuple, List
 
 logger = logging.getLogger(__name__)
 
 
-def load(name: str, engine) -> Tuple[DataFrame, DataFrame]:
-    df = pd.read_sql_query("SELECT * from tweet", engine)
+def load(name: str, dataset: List[int], engine) -> Tuple[DataFrame, DataFrame]:
+    query = "SELECT * from tweet where event_id_id in ({})"
+    query = query.format(','.join(map(str, dataset)))
+
+    df = pd.read_sql_query(query, engine)
     logger.info(f"Loaded df '{name}' of dim {df.shape}")
 
     urls_dir = Path('data', name, 'resolved_urls.txt')
