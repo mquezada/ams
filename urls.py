@@ -114,11 +114,11 @@ def unshorten_urls(name: str, dataset: List[int], n_urls=None, n_threads=32):
     for t in threads:
         t.join()
 
-    # logger.info(f'Saving data...')
-    # data_path = DATA_DIR / Path(name) / Path('resolved_urls.txt')
-    # with open(data_path.as_posix(), 'w') as f:
-    #     for short, (expanded, title) in expanded_urls.items():
-    #         f.write(f'{short}\t{expanded}\t{title}\n')
+    logger.info(f'Saving data...')
+    data_path = DATA_DIR / Path(name) / Path('resolved_urls.txt')
+    with open(data_path.as_posix(), 'w') as f:
+        for short, (expanded, title) in expanded_urls.items():
+            f.write(f'{short}\t{expanded}\t{title.encode("utf-8")}\n')
 
     logger.info("Exiting main thread")
     return expanded_urls
