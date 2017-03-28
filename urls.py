@@ -121,6 +121,7 @@ def unshorten_urls(name: str, dataset: List[int], n_urls=None, n_threads=32):
             f.write(f'{short}\t{expanded}\t{title}\n')
 
     logger.info("Exiting main thread")
+    return expanded_urls
 
 
 if __name__ == '__main__':
