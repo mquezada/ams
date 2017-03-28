@@ -10,7 +10,7 @@ import requests
 from requests.exceptions import TooManyRedirects, ReadTimeout, ConnectTimeout, ConnectionError
 from tqdm import trange
 
-from nlp_utils import match_url
+from nlp_utils import match_url, remove_accents
 from settings import DATA_DIR
 
 
@@ -118,7 +118,7 @@ def unshorten_urls(name: str, dataset: List[int], n_urls=None, n_threads=32):
     data_path = DATA_DIR / Path(name) / Path('resolved_urls.txt')
     with open(data_path.as_posix(), 'w') as f:
         for short, (expanded, title) in expanded_urls.items():
-            f.write('{}\t{}\t{}\n'.format(short, expanded, title.encode('utf-8')))
+            f.write('{}\t{}\t{}\n'.format(short, expanded, remove_accents(title)))
 
     logger.info("Exiting main thread")
     return expanded_urls
