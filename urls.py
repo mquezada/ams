@@ -118,7 +118,7 @@ def unshorten_urls(name: str, dataset: List[int], n_urls=None, n_threads=32):
     data_path = DATA_DIR / Path(name) / Path('resolved_urls.txt')
     with open(data_path.as_posix(), 'w') as f:
         for short, (expanded, title) in expanded_urls.items():
-            f.write(f'{short}\t{expanded}\t{title.encode("utf-8")}\n')
+            f.write('{}\t{}\t{}\n'.format(short, expanded, title.encode('utf-8')))
 
     logger.info("Exiting main thread")
     return expanded_urls
