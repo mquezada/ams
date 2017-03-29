@@ -8,9 +8,11 @@ def match_url(text: str) -> List[str]:
     return url_re.findall(text)
 
 
-def remove_accents(s: Optional[str]) -> str:
+def clean(s: Optional[str]) -> str:
     if not s:
-        return ""
+        return "None"
+
+    s = ' '.join(s.split())
 
     return unicodedata.normalize('NFKD', s) \
         .encode('ASCII', 'ignore') \
