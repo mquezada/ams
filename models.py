@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, DateTime, BigInteger, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, BigInteger, Boolean, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
@@ -25,6 +25,15 @@ class Tweet(Base):
     created_at = Column(DateTime)
     event_id_id = Column(Integer)
 
+    document_id = Column(Integer, ForeignKey('document.id'))
+    document = relationship('Document', back_populates='tweets')
+
+    def __str__(self):
+        return f"<id={self.tweet_id}, text={self.text}>"
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class Event(Base):
     __tablename__ = 'event_id'
@@ -32,6 +41,15 @@ class Event(Base):
     id = Column(Integer, primary_key=True)
     title = Column(String(255))
     event_id = Column(Integer)
+
+
+class Document(Base):
+    __tablename__ = 'document'
+
+    id = Column(Integer, primary_key=True)
+    url = Column(String(512))
+
+    tweets = relationship('Tweet', back_populates='document')
 
 
 class TweetURL(Base):

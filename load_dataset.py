@@ -14,8 +14,8 @@ def load(name: str, dataset: List[int], engine) -> Tuple[DataFrame, DataFrame]:
     df = pd.read_sql_query(query, engine)
     logger.info(f"Loaded df '{name}' of dim {df.shape}")
 
-    urls_dir = Path('data', name, 'resolved_urls_backup.txt')
-    urls_df = pd.read_table(urls_dir.as_posix(), sep=' ')
+    urls_dir = Path('data', name, 'resolved_urls.txt')
+    urls_df = pd.read_table(urls_dir.as_posix(), sep='\t')
     logger.info(f"Loaded urls df '{name}' of dim {urls_df.shape}")
 
     return df, urls_df
