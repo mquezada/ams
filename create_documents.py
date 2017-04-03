@@ -7,7 +7,6 @@ import nlp_utils
 from load_dataset import load
 from settings import engine, Datasets
 from create_tfidf import create_matrix
-from set_db import
 
 
 logger = logging.getLogger(__name__)
@@ -49,16 +48,3 @@ def create_documents(tweets_df: DataFrame,
 
     logger.info(f'Total {len(documents)} documents.')
     return documents
-
-
-def info_for_distance():
-    tweets_df, _ = load('oscar pistorius', Datasets.oscar_pistorius, engine)
-    m = create_matrix(tweets_df)
-
-    doc = {}
-    tweets_of_doc = defaultdict(list)
-    for idx, tweet in tweets_df.iterrows():
-        doc[idx] = tweet.document_id
-        tweets_of_doc[tweet.document_id].append(idx)
-
-    return m, doc, tweets_of_doc

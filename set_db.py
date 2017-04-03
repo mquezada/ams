@@ -7,6 +7,8 @@ from pandas.core.frame import DataFrame
 from collections import defaultdict
 import numpy as np
 from union_find import UnionFind
+from load_dataset import load
+from settings import engine, Datasets
 
 
 logger = logging.getLogger(__name__)
@@ -93,18 +95,28 @@ def add_documents(name: str, event_ids: List[int], tweet_urls: Dict[int, models.
     return uf
 
 
-def get_info(name: str, session):
-    # todo
+def get_info(name: str, session, dataset: List[int] = Datasets.oscar_pistorius, limit: int = None):
     with session.begin():
-        events = session.query(models.Event).filter_by(title=name).all()
+        if limit:
+            tweets = session.query(models.Tweet).filter(models.Tweet.event_id_id.in_(dataset)).limit(limit).all()
+        else:
+            tweets = session.query(models.Tweet).filter(models.Tweet.event_id_id.in_(dataset)).all()
 
-        tweets = []
-        for event in tqdm(events, desc="get_info (tweets)"):
-            tmp = session.query(models.Tweet).filter_by(event_id_id=event.event_id).all()
-            tweets.extend(list(tmp))
+        tweet_ids = []
+        replies = 0
+        rts = 0
+
+        for tweet in tweets:
+            tweet_ids.append(tweet.tweet_id)
+            if tweet.in_reply_to_status_id:
+                replies += 1
+            if tweet.retweet_of_id:
+                rts += 1
+
+        set_info = {'replies': replies, 'rts': rts}
 
         logger.info("get_info (URLs)")
-        tweet_ids = [tweet.tweet_id for tweet in tweets]
+
         url_obj = session.query(models.URL, models.TweetURL).\
             filter(models.URL.id == models.TweetURL.url_id).all()
         url_info = dict()
@@ -117,27 +129,41 @@ def get_info(name: str, session):
             if info:
                 url_tweet[tweet_id] = info
 
-        return events, tweets, url_tweet
+        return tweets, url_tweet, set_info
 
 
 def get_tweets(document_id: int, session):
     with session.begin():
         tweets = session.query(models.Tweet).filter_by(document_id=document_id).all()
 
-        tweet_ids = [tweet.tweet_id for tweet in tweets]
+        tweet_ids = []
+        replies = 0
+        rts = 0
+        for tweet in tweets:
+            tweet_ids.append(tweet.tweet_id)
+            if tweet.in_reply_to_status_id:
+                replies += 1
+            if tweet.retweet_of_id:
+                rts += 1
+
+        set_info = {'replies': replies, 'rts': rts}
+
         url_obj = session.query(models.URL, models.TweetURL). \
             filter(models.URL.id == models.TweetURL.url_id).all()
+
         url_info = dict()
         url_tweet = dict()
+
         for i in trange(len(url_obj), desc="get_info (url_obj)"):
             m_url, m_tweet_url = url_obj[i]
             url_info[m_tweet_url.tweet_id] = (m_url.short_url, m_url.expanded_url, m_url.title)
+
         for tweet_id in tqdm(tweet_ids, desc="get_info (join tweets)"):
             info = url_info.get(tweet_id)
             if info:
                 url_tweet[tweet_id] = info
 
-        return tweets, url_tweet
+        return tweets, url_tweet, set_info
 
 
 if __name__ == '__main__':

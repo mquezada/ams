@@ -30,36 +30,81 @@
 
     <div class="container-fluid">
         <div class="row">
+
+            <h1>Event: {{event_name}}</h1>
+
+            <div class="col-md-3">
+                <table class="table table-bordered table-hover table-condensed">
+                    <tbody>
+                        <tr>
+                            <td><strong>Total tweets</strong></td>
+                            <td>{{ tweets|length }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total replies</strong></td>
+                            <td>{{ set_info.replies }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total retweets</strong></td>
+                            <td>{{ set_info.rts }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <table id="tweets" class="hover compact row-border" cellspacing="0" width="100%">
                 <thead>
                     <tr>
-                        <th>Doc</th>
+                        <th>idx</th>
+                        <th>d</th>
                         <th>Text</th>
                         <th>URL</th>
-                        <th>Title</th>
+                        <th>Is Reply</th>
+                        <th>Is RT</th>
+                        <th>RTs</th>
+                        <th>Favs</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for tweet in tweets %}
                     <tr>
+                        <td>{{ index[tweet.tweet_id] }}</td>
                         <td><a href="/document/{{ tweet.document_id }}">{{ tweet.document_id }}</a></td>
                         <td>{{tweet.text}}</td>
+
                         {% if tweet.tweet_id in urls %}
-                        <td><a href="{{ urls[tweet.tweet_id][1] }}">{{ urls[tweet.tweet_id][1] }}</a></td>
-                        <td>{{ urls[tweet.tweet_id][2] }}</td>
+                        <td><a href="{{ urls[tweet.tweet_id][1] }}" title="{{ urls[tweet.tweet_id][1] }}">{{ urls[tweet.tweet_id][2] }}</a></td>
                         {% else %}
                         <td></td>
+                        {% endif %}
+
+                        {% if tweet.in_reply_to_status_id %}
+                        <td><span class="glyphicon glyphicon-ok"></span></td>
+                        {% else %}
                         <td></td>
                         {% endif %}
+                        {% if tweet.retweet_of_id %}
+                        <td><span class="glyphicon glyphicon-ok"></span></td>
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+
+                        <td>{{tweet.retweet_count}}</td>
+                        <td>{{tweet.favorite_count}}</td>
+
                     </tr>
                     {% endfor %}
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th>Doc</th>
+                        <th>idx</th>
+                        <th>d</th>
                         <th>Text</th>
                         <th>URL</th>
-                        <th>Title</th>
+                        <th>Is Reply</th>
+                        <th>Is RT</th>
+                        <th>RTs</th>
+                        <th>Favs</th>
                     </tr>
                 </tfoot>
             </table>

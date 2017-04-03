@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        .container-fluid {
+            padding: 40px;
+        }
+    </style>
+
+    <title>Distances</title>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <a href="/event"><span class="glyphicon glyphicon-arrow-left"></span> back</a>
+
+        <div class="row">
+
+            <table id="tweets" class="hover compact row-border" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>Doc 1</th>
+                        <th>Size</th>
+                        <th>Doc 2</th>
+                        <th>Size</th>
+                        <th>min</th>
+                        <th>avg</th>
+                        <th>max</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in distances %}
+                    <tr>
+                        <td>
+                            <a href="/document/{{ d[0] }}/" data-toggle="tooltip" data-placement="right" title="{{ info[d[0]] }}">{{d[0]}}</a>
+                        </td>
+                        <td>{{d[1]}}</td>
+                        <td>
+                            <a href="/document/{{ d[2] }}/" data-toggle="tooltip" data-placement="right" title="{{ info[d[2]] }}">{{d[2]}}</a>
+                        </td>
+                        <td>{{d[3]}}</td>
+                        <td>{{d[4]}}</td>
+                        <td>{{d[5]}}</td>
+                        <td>{{d[6]}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Doc 1</th>
+                        <th>Size</th>
+                        <th>Doc 2</th>
+                        <th>Size</th>
+                        <th>min</th>
+                        <th>avg</th>
+                        <th>max</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+    <script>
+        $(document).ready(function(){
+        $('#tweets').DataTable({
+        "iDisplayLength": 100,
+        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
+        });
+    });
+
+
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+    </script>
+</body>
+
+
+</html>

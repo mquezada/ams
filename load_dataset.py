@@ -7,16 +7,22 @@ from typing import Tuple, List
 logger = logging.getLogger(__name__)
 
 
-def load(name: str, dataset: List[int], engine) -> Tuple[DataFrame, DataFrame]:
+def load(name: str, dataset: List[int], engine, urls=True):
     query = "SELECT * from tweet where event_id_id in ({})"
     query = query.format(','.join(map(str, dataset)))
 
     df = pd.read_sql_query(query, engine)
     logger.info(f"Loaded df '{name}' of dim {df.shape}")
 
-    urls_dir = Path('data', name, 'resolved_urls.txt')
-    urls_df = pd.read_table(urls_dir.as_posix(), sep='\t')
-    logger.info(f"Loaded urls df '{name}' of dim {urls_df.shape}")
+    if urls:
 
-    return df, urls_df
+        urls_dir = Path('data', name, 'resolved_urls.txt')
+        urls_df = pd.read_table(urls_dir.as_posix(), sep='\t')
+        logger.info(f"Loaded urls df '{name}' of dim {urls_df.shape}")
+
+        return df, urls_df
+
+    else:
+
+        return df
 
