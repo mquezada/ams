@@ -47,9 +47,7 @@ def create_matrix(tweets: List, name: str = 'oscar pistorius') -> csr_matrix:
         else:
             text_doc[doc_id-1] = text_doc[doc_id-1] + " " + text
 
-    text_doc=[text_doc[i] for i in range(len(text_doc)) if len(text_doc[i])>140]
-
-    print(len(text_doc))
+    text_doc=[text_doc[i] for i in range(len(text_doc)) if len(text_doc[i])>140]#Elimina los doc con solo un mensaje
 
     texts = []
 
@@ -112,7 +110,6 @@ def clustering_tfidf(tweets, name: str = 'oscar pistorius'):
     linkages = ['average', 'complete']
     n_clusters=[2,5,10,13,15,20]
     matrix = create_matrix(tweets, name).toarray()
-    print(matrix.shape)
 
     for distance in tqdm(distances, desc='Clustering...'):
         logger.info("Distance: %s",distance)
@@ -141,8 +138,6 @@ def load_cluster(distance,linkage,n_cluster,name):
         with cluster_loc.open('rb') as f:
             labels = pickle.loads(f.read())
             return labels
-
-
 
 
 if __name__ == '__main__':
