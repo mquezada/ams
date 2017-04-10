@@ -91,13 +91,21 @@ def index_cluster(distance, linkage, n_cluster):
 
 @app.route('/clusters')
 def clusters():
-    files = {}
+    files_distance={}
     for file in os.listdir("data/oscar pistorius"):
         if file.endswith(".pickle") and file.startswith("labels_clusters"):
             file = file[16:-7]
-            files[file] = [file.split('-')]
+            tokens=file.split('-')
+            distance=tokens[0]
+            if distance in files_distance:
+                elements=files_distance[distance]
+                elements.append(tokens)
+                files_distance[distance]=elements
+            else:
+                files_distance[distance]=[tokens]
 
-    return render_template('clusters.html', files=files)
+    print(files_distance)
+    return render_template('clusters.html', files=files_distance)
 
 
 @app.route('/distances')
