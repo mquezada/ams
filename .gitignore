@@ -4,3 +4,8 @@
 __pycache__
 data
 *.log
+*.pdf
+*.aux
+*.log
+*.blg
+*.bbl
