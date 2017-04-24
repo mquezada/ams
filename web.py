@@ -1,6 +1,7 @@
 import set_db
 import settings
 from sqlalchemy.orm import sessionmaker
+from sklearn import metrics
 from flask import Flask, render_template
 from distance import tweet_distance
 from settings import Datasets
@@ -71,27 +72,40 @@ def see_cluster(distance, linkage, n_cluster, cluster):
     url_clust_dict = {}
     n_elements = len(cluster_elements)
     for cluster_element in cluster_elements:
-        tweets, url_tweet, set_info = set_db.get_tweets(cluster_element, session)
+        tweets = set_db.get_onlytweets(cluster_element, session)
         tweet_clust_dict[cluster_element] = tweets
-        url_clust_dict[cluster_element] = url_tweet
 
     return render_template('see_cluster.html', tweet_dict=tweet_clust_dict, cluster=cluster, n_elements=n_elements)
 
 
 @app.route('/clusters/<string:distance>/<string:linkage>/<int:n_cluster>')
 def index_cluster(distance, linkage, n_cluster):
-    return render_template("cluster_index.html", distance=distance, linkage=linkage, n_cluster=n_cluster)
+    cluster_labels = load_cluster(distance, linkage, n_cluster, 'oscar pistorius')
+    m, doc, tweets_of_doc = info_for_distance('oscar pistorius', Datasets.oscar_pistorius)
+    silhouette = metrics.silhouette_score(m, cluster_labels, metric='cosine')
+    unique, counts = np.unique(cluster_labels, return_counts=True)
+    n_elements = dict(zip(unique, counts))
+    return render_template("cluster_index.html", distance=distance, linkage=linkage, n_cluster=n_cluster,
+                           silhouette=silhouette, n_elements=n_elements)
 
 
 @app.route('/clusters')
 def clusters():
-    files = {}
-    for file in os.listdir("data/oscar pistorius/clusters_pistorius"):
+    files_distance={}
+    for file in os.listdir("data/oscar pistorius"):
         if file.endswith(".pickle") and file.startswith("labels_clusters"):
             file = file[16:-7]
-            files[file] = [file.split('-')]
+            tokens=file.split('-')
+            distance=tokens[0]
+            if distance in files_distance:
+                elements=files_distance[distance]
+                elements.append(tokens)
+                files_distance[distance]=elements
+            else:
+                files_distance[distance]=[tokens]
 
-    return render_template('clusters.html', files=files)
+    print(files_distance)
+    return render_template('clusters.html', files=files_distance)
 
 
 @app.route('/distances')
@@ -148,4 +162,5 @@ if __name__ == "__main__":
 
     tweets, urls, set_info = set_db.get_info(event_name, session, limit=5000)
     tweet_index = {t.tweet_id: i for (i, t) in enumerate(tweets)}
-    app.run()
+    app.run(debug=True)
+

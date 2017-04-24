@@ -132,6 +132,22 @@ def get_info(name: str, session, dataset: List[int] = Datasets.oscar_pistorius, 
         return tweets, url_tweet, set_info
 
 
+def get_onlytweets(document_id: int, session):
+    with session.begin():
+        tweets = session.query(models.Tweet).filter_by(document_id=document_id).all()
+
+        tweet_ids = []
+        replies = 0
+        rts = 0
+        for tweet in tweets:
+            tweet_ids.append(tweet.tweet_id)
+            if tweet.in_reply_to_status_id:
+                replies += 1
+            if tweet.retweet_of_id:
+                rts += 1
+
+        return tweets
+
 def get_tweets(document_id: int, session):
     with session.begin():
         tweets = session.query(models.Tweet).filter_by(document_id=document_id).all()

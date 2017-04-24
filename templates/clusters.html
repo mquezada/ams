@@ -28,13 +28,16 @@
     <div class="container-fluid">
         <div class="row">
             <h1>Clusters Disponibles</h1>
-            <ul>
-                {% for file,value in files.items() %}
-                    <li>
-                        <a href="/clusters/{{value[0][0]}}/{{value[0][1]}}/{{value[0][2]}}">{{file}}</a>
-                    </li>
+            {% for file,values in files.items() %}
+                <h4>{{file}}</h4>
+                {% for value in values%}
+                    <ul>
+                        <li>
+                            <a href="/clusters/{{value[0]}}/{{value[1]}}/{{value[2]}}">{{value[0]+' '+value[1]+' '+value[2]}}</a>
+                        </li>
+                    </ul>
                 {% endfor %}
-            </ul>
+            {% endfor %}
         </div>
     </div>
 </body>

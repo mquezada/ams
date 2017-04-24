@@ -1,0 +1,4 @@
+pdflatex model.tex
+bibtex model.aux
+pdflatex model.tex
+pdflatex model.tex
