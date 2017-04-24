@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="MQ" />
+  <title>Multimodal document model</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+</head>
+<body>
+<div id="header">
+<h1 class="title">Multimodal document model</h1>
+<h2 class="author">MQ</h2>
+</div>
+<h1 id="introduction">Introduction</h1>
+<h2 id="definitions">Definitions</h2>
+<h4 id="tweet">Tweet</h4>
+<p>A <span><em>tweet</em></span> can be seen as a struct with the following fields:</p>
+<ul>
+<li><p><span><em>text</em></span>: the textual content of the tweet.</p></li>
+<li><p><span><em>creation_date</em></span>: a timestamp when the tweet was published.</p></li>
+<li><p><span><em>no_retweets</em></span>: the amount of times that tweet was shared or forwarded by other users.</p></li>
+<li><p><span><em>no_likes</em></span>: the amount of times users “liked” the tweet.</p></li>
+<li><p><span><em>user</em></span>: an identifier of the user who published the tweet.</p></li>
+</ul>
+<h4 id="summary">Summary</h4>
+<p>Given a set of tweets <span class="math inline">\(E = \{t_1, t_2, \ldots, t_N\}\)</span>, called an <span> <em>event</em></span>, we want to select a subset <span class="math inline">\(S \subseteq E\)</span> of tweets, called a <span><em>summary</em></span>. The summary must fulfill the following criteria:</p>
+<ul>
+<li><p><span><strong>Topical coverage</strong></span>: the tweets in <span class="math inline">\(S\)</span> must cover the same topics as <span class="math inline">\(E\)</span>.</p></li>
+<li><p><span><strong>Redundancy</strong></span>: the content of tweets in <span class="math inline">\(S\)</span> must not be redundant with each other.</p></li>
+<li><p><span><strong>Importance</strong></span>: the tweets in <span class="math inline">\(S\)</span> must be the top <span class="math inline">\(|S|\)</span>, with respect to <span class="math inline">\(E\)</span>, according to a pre-defined ranking function, considering into account the previous two criteria. For example, if two tweets have the same value according to the ranking, but the two of them are equal in terms of content, then only one of them should be in <span class="math inline">\(S\)</span>.</p></li>
+<li><p><span><strong>Human-manageable size</strong></span>: the size of <span class="math inline">\(S\)</span> must be of much less size than <span class="math inline">\(E\)</span>, only if <span class="math inline">\(E\)</span> is large. <span><strong>(TODO: define what is “large” and how less is “less.”)</strong></span></p></li>
+</ul>
+<h4 id="replies-and-retweets">Replies and retweets</h4>
+<p>We denote by <span class="math inline">\(\mathit{URL}(t) = \{u_1, u_2, \ldots, u_m\}\)</span> the URLs shared by the tweet <span class="math inline">\(t\)</span>. <span class="math inline">\(\mathit{URL}(t)\)</span> is empty if <span class="math inline">\(t\)</span> does not share any URL.</p>
+<p>We also denote by <span class="math inline">\(\mathit{replies}(t)\)</span> the set of all tweets <span class="math inline">\(t&#39;\)</span> such that <span class="math inline">\(t&#39;\)</span> is a <span><em>reply</em></span> of <span class="math inline">\(t\)</span>, or <span class="math inline">\(t&#39;\)</span> is a reply of another tweet in <span class="math inline">\(\mathit{replies}(t)\)</span>. The same applies to <span class="math inline">\(\mathit{retweets}(t)\)</span>, but by considering <span><em>retweets</em></span> instead of replies.</p>
+<h4 id="document">Document</h4>
+<p>We now define a <span><em>document</em></span> <span class="math inline">\(d_u\)</span> as a set of tweets, such that those tweets share the same URL <span class="math inline">\(u\)</span>, plus their replies and retweets, that is,</p>
+<p><span class="math display">\[d_u = \{t\ :\ u \in \mathit{URL}(t) \lor \exists t&#39;
+(t \in \mathit{replies}(t&#39;) \lor t \in \mathit{retweets}(t&#39;)) \land
+u \in \mathit{URL}(t&#39;)\}.\]</span></p>
+<p>Note that a tweet <span class="math inline">\(t\)</span> can be a member of different documents, if <span class="math inline">\(t\)</span> shares more than one URL.</p>
+<h2 id="methodology">Methodology</h2>
+<p>We make use of the context of multiple tweets in order to arrange them into topically similar groups. When a tweet shares an URL <span class="math inline">\(u\)</span>, the content of the tweet can be seen as a description (or <span><em>anchor text</em></span>) or a comment on the content of <span class="math inline">\(u\)</span>. This also applies when a tweet is a <span><em>reply</em></span> of another tweet: those two tweets (the reply and the replied) are topically similar, because both of them refers to the same subject of discussion. We use this context to group tweets into documents.</p>
+<p>Given an event <span class="math inline">\(E\)</span>, let <span class="math inline">\(U\)</span> be the set of all the URLs shared across tweets in <span class="math inline">\(E\)</span>. The documents induced by <span class="math inline">\(U\)</span> are all the subsets of tweets that share at least one URL, <span class="math inline">\(D = \{d_u\ :\ u \in U\}\)</span>. Our goal is to select representative tweets to create <span class="math inline">\(S\)</span>, by using <span class="math inline">\(D\)</span> as a proxy by grouping similar tweets into documents.</p>
+<p>One main task is to compare documents. Two documents whose content is topically similar should be similar according to the features of its constituents. Note that the documents may have very different sizes, and it is possible that two different documents are topically similar. This makes comparing documents a difficult task.</p>
+</body>
+</html>
