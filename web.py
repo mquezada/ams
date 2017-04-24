@@ -13,7 +13,6 @@ import sys
 import os
 import models
 
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s | %(levelname)s : %(message)s', level=logging.INFO, stream=sys.stderr)
 
@@ -27,7 +26,8 @@ def test():
     docs = session.query(models.Document).all()
     docs_info = {d.id: d.url for d in docs}
     tweets, url_tweet, set_info = set_db.get_tweets(1, session)
-    return render_template('test.html',docs_info=docs_info)
+    return render_template('test.html', docs_info=docs_info)
+
 
 @app.route("/")
 def main():
@@ -43,6 +43,7 @@ def show_info():
                            set_info=set_info,
                            event_name=event_name.capitalize())
 
+
 @app.route('/document/<int:doc_id>')
 def document(doc_id):
     tweets, url_tweet, set_info = set_db.get_tweets(doc_id, session)
@@ -51,7 +52,6 @@ def document(doc_id):
     else:
         exp = ""
         title = "No URL"
-
 
     return render_template('document.html',
                            doc_id=doc_id,
@@ -62,35 +62,36 @@ def document(doc_id):
                            tweets=tweets,
                            urls=url_tweet)
 
+
 @app.route('/clusters/<string:distance>/<string:linkage>/<int:n_cluster>/<int:cluster>')
-def see_cluster(distance,linkage,n_cluster,cluster):
-    cluster_labels=load_cluster(distance,linkage,n_cluster,'oscar pistorius')
-    cluster_elements=[i for i in range(len(cluster_labels)) if cluster_labels[i]==cluster]
-    tweet_clust_dict={}
-    url_clust_dict={}
-    n_elements=len(cluster_elements)
+def see_cluster(distance, linkage, n_cluster, cluster):
+    cluster_labels = load_cluster(distance, linkage, n_cluster, 'oscar pistorius')
+    cluster_elements = [i for i in range(len(cluster_labels)) if cluster_labels[i] == cluster]
+    tweet_clust_dict = {}
+    url_clust_dict = {}
+    n_elements = len(cluster_elements)
     for cluster_element in cluster_elements:
-        tweets, url_tweet, set_info = set_db.get_tweets(cluster_element,session)
+        tweets, url_tweet, set_info = set_db.get_tweets(cluster_element, session)
         tweet_clust_dict[cluster_element] = tweets
         url_clust_dict[cluster_element] = url_tweet
 
-    return render_template('see_cluster.html',tweet_dict=tweet_clust_dict,cluster=cluster,n_elements=n_elements)
+    return render_template('see_cluster.html', tweet_dict=tweet_clust_dict, cluster=cluster, n_elements=n_elements)
 
 
 @app.route('/clusters/<string:distance>/<string:linkage>/<int:n_cluster>')
-def index_cluster(distance,linkage,n_cluster):
-    return render_template("cluster_index.html",distance=distance,linkage=linkage,n_cluster=n_cluster)
+def index_cluster(distance, linkage, n_cluster):
+    return render_template("cluster_index.html", distance=distance, linkage=linkage, n_cluster=n_cluster)
 
 
 @app.route('/clusters')
 def clusters():
-    files={}
-    for file in os.listdir("data/oscar pistorius"):
+    files = {}
+    for file in os.listdir("data/oscar pistorius/clusters_pistorius"):
         if file.endswith(".pickle") and file.startswith("labels_clusters"):
-            file=file[16:-7]
-            files[file]=[file.split('-')]
+            file = file[16:-7]
+            files[file] = [file.split('-')]
 
-    return render_template('clusters.html',files=files)
+    return render_template('clusters.html', files=files)
 
 
 @app.route('/distances')
@@ -147,4 +148,4 @@ if __name__ == "__main__":
 
     tweets, urls, set_info = set_db.get_info(event_name, session, limit=5000)
     tweet_index = {t.tweet_id: i for (i, t) in enumerate(tweets)}
-    app.run(debug=True)
+    app.run()
