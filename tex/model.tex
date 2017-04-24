@@ -100,9 +100,53 @@ constituents. Note that the documents may have very different sizes,
 and it is possible that two different documents are topically
 similar. This makes comparing documents a difficult task.
 
+By comparing documents, our goal is to discover sub-topics inside $E$,
+in order to achieve coverage in the resulting summary. Possible
+implementations for sub-topic identification are clustering
+(e.g. K-Means, K-Medoids, hierarchical, or online/incremental), or
+process an induced graph from the documents (e.g. community detection,
+connected components, or centrality measures). Another alternative,
+which does not require computing a similarity measure between
+documents, is the use of topic modelling (LDA or Dynamic Topic Models
+if the time dimension is considered).
 
 
-\bibliographystyle{abbrv}
-\bibliography{refs}
+\paragraph{Similarity between documents}
+
+There are two alternatives when computing similarity between
+documents:
+
+\begin{enumerate}
+\item {\em Consider all the elements of a document as a single element.}
+For example, compute a vector space model (e.g. tf-idf) over the
+concatenation of tweets in a document and then compare the
+representations using standard cosine similarity. A problem with this
+approach is that diverse content inside a document can be shadowed by
+the most popular content inside a document. Or, on the other hand, if
+there is a lot of diverse content, then the focus of the document can
+be inaccurate, compared by a smaller, focused document.
+
+\item {\em Consider each element of a document as a single element.}
+For example, compare individual pairs of tweets of different
+documents, and then compute an average of similarities to assess the
+similarity of the two documents. This could share a similar problem
+with the other alternative, as diverse content may diffuse the main
+focus of a document (or be shadowed by the popular content). Another
+alternative is to derive high similarity between unequally-sized
+documents if {\em some} of the tweets in the larger document are {\em
+very} similar to the tweets in the smaller one.
+
+Another problem is the sparsity of vocabulary of tweets, if we compare
+them one by one. But this can be settled by using more information
+about the tweets (for example, by using a word embedding to compute
+similarity between words).
+\end{enumerate}
+
+The second approach may be better adjusted to the specific domain,
+where certain topics of an event are way more popular than the rest. 
+
+
+%\bibliographystyle{abbrv}
+%\bibliography{refs}
 
 \end{document}
