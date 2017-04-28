@@ -1,0 +1,175 @@
+---
+title: "Exploratory Analysis"
+output: 
+  html_document: 
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '~/phd/AMS/data/')
+```
+
+```{r}
+library(ggplot2)
+library(data.table)
+```
+
+# Oscar Pistorius
+
+## General
+
+```{r}
+df <- fread('oscar_pistorius/stats.txt')
+knitr::kable(df)
+```
+
+## Document sizes
+```{r}
+df <- fread('oscar_pistorius/document_sizes.txt')
+ggplot(df, aes(x=n_tweets)) + 
+  stat_bin(binwidth=10) + ylim(c(0, 51000)) +
+  stat_bin(binwidth=10, geom='text', aes(label=..count..), vjust=-.5) +
+  ggtitle('Document sizes')
+
+df <- fread('oscar_pistorius/document_sizes_dup.txt')
+ggplot(df, aes(x=n_tweets)) + 
+  stat_bin(binwidth=10) + ylim(c(0, 51000)) +
+  stat_bin(binwidth=10, geom='text', aes(label=..count..), vjust=-.5) +
+  ggtitle('Document sizes (duplicates removed)')
+
+df <- fread('oscar_pistorius/document_sizes_dup_jacc.txt')
+ggplot(df, aes(x=n_tweets)) +
+  facet_grid(. ~ threshold) +
+  stat_bin(binwidth=10) + ylim(c(0, 51000)) +
+  stat_bin(binwidth=10, geom='text', aes(label=..count..), vjust=-.5) +
+  ggtitle('Document sizes (pseudo-duplicates removed)')
+```
+
+## Domain frequency
+```{r}
+df <- fread('oscar_pistorius/domains.txt')
+df$netloc <- factor(df$netloc)
+ggplot(df[1:30], aes(x=reorder(netloc, n_urls), y=n_urls)) + 
+  geom_bar(stat="identity") +
+  coord_flip() +
+  ggtitle("30 most frequent domains")
+```
+
+## Tweets with URL
+```{r}
+df <- fread('oscar_pistorius/tweets_with_url.txt')
+ggplot(df, aes(x=n_urls, y=total_tweets)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  ggtitle('tweets with N urls')
+```
+
+
+
+
+
+
+# Microsoft buys Nokia
+
+## General
+
+```{r}
+df <- fread('microsoft_nokia/stats.txt')
+knitr::kable(df)
+```
+
+## Document sizes
+```{r}
+df <- fread('microsoft_nokia/document_sizes.txt')
+ggplot(df, aes(x=n_tweets)) + 
+  stat_bin(binwidth=10) + ylim(c(0, 51000)) +
+  stat_bin(binwidth=10, geom='text', aes(label=..count..), vjust=-.5) +
+  ggtitle('Document sizes')
+
+df <- fread('microsoft_nokia/document_sizes_dup.txt')
+ggplot(df, aes(x=n_tweets)) + 
+  stat_bin(binwidth=10) + ylim(c(0, 51000)) +
+  stat_bin(binwidth=10, geom='text', aes(label=..count..), vjust=-.5) +
+  ggtitle('Document sizes (duplicates removed)')
+
+df <- fread('microsoft_nokia/document_sizes_dup_jacc.txt')
+ggplot(df, aes(x=n_tweets)) +
+  facet_grid(. ~ threshold) +
+  stat_bin(binwidth=10) + ylim(c(0, 51000)) +
+  stat_bin(binwidth=10, geom='text', aes(label=..count..), vjust=-.5) +
+  ggtitle('Document sizes (pseudo-duplicates removed)')
+```
+
+## Domain frequency
+```{r}
+df <- fread('microsoft_nokia/domains.txt')
+df$netloc <- factor(df$netloc)
+ggplot(df[1:30], aes(x=reorder(netloc, n_urls), y=n_urls)) + 
+  geom_bar(stat="identity") +
+  coord_flip() +
+  ggtitle("30 most frequent domains")
+```
+
+## Tweets with URL
+```{r}
+df <- fread('microsoft_nokia/tweets_with_url.txt')
+ggplot(df, aes(x=n_urls, y=total_tweets)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  ggtitle('tweets with N urls')
+```
+
+
+
+
+
+# 2015 Nepal Earthquake
+
+## General
+
+```{r}
+df <- fread('nepal_earthquake/stats.txt')
+knitr::kable(df)
+```
+
+## Document sizes
+```{r}
+df <- fread('nepal_earthquake/document_sizes.txt')
+ggplot(df, aes(x=n_tweets)) + 
+  stat_bin(binwidth=10) + ylim(c(0, 51000)) +
+  stat_bin(binwidth=10, geom='text', aes(label=..count..), vjust=-.5) +
+  ggtitle('Document sizes')
+
+df <- fread('nepal_earthquake/document_sizes_dup.txt')
+ggplot(df, aes(x=n_tweets)) + 
+  stat_bin(binwidth=10) + ylim(c(0, 51000)) +
+  stat_bin(binwidth=10, geom='text', aes(label=..count..), vjust=-.5) +
+  ggtitle('Document sizes (duplicates removed)')
+
+df <- fread('nepal_earthquake/document_sizes_dup_jacc.txt')
+ggplot(df, aes(x=n_tweets)) +
+  facet_grid(. ~ threshold) +
+  stat_bin(binwidth=10) + ylim(c(0, 51000)) +
+  stat_bin(binwidth=10, geom='text', aes(label=..count..), vjust=-.5) +
+  ggtitle('Document sizes (pseudo-duplicates removed)')
+```
+
+## Domain frequency
+```{r}
+df <- fread('nepal_earthquake/domains.txt')
+df$netloc <- factor(df$netloc)
+ggplot(df[1:30], aes(x=reorder(netloc, n_urls), y=n_urls)) + 
+  geom_bar(stat="identity") +
+  coord_flip() +
+  ggtitle("30 most frequent domains")
+```
+
+## Tweets with URL
+```{r}
+df <- fread('nepal_earthquake/tweets_with_url.txt')
+ggplot(df, aes(x=n_urls, y=total_tweets)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  ggtitle('tweets with N urls')
+```
