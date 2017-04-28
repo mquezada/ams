@@ -28,21 +28,22 @@ knitr::kable(df)
 ```{r}
 df <- fread('oscar_pistorius/document_sizes.txt')
 ggplot(df, aes(x=n_tweets)) + 
-  stat_bin(binwidth=10) + ylim(c(0, 51000)) +
-  stat_bin(binwidth=10, geom='text', aes(label=..count..), vjust=-.5) +
+  stat_bin(binwidth=1) + ylim(c(0, 51000)) +
+  stat_bin(binwidth=1, geom='text', aes(label=..count..), vjust=-.5) +
+  scale_y_log10() +
   ggtitle('Document sizes')
 
 df <- fread('oscar_pistorius/document_sizes_dup.txt')
 ggplot(df, aes(x=n_tweets)) + 
-  stat_bin(binwidth=10) + ylim(c(0, 51000)) +
-  stat_bin(binwidth=10, geom='text', aes(label=..count..), vjust=-.5) +
+  stat_bin(binwidth=1) + ylim(c(0, 51000)) +
+  stat_bin(binwidth=1, geom='text', aes(label=..count..), vjust=-.5) +
   ggtitle('Document sizes (duplicates removed)')
 
 df <- fread('oscar_pistorius/document_sizes_dup_jacc.txt')
 ggplot(df, aes(x=n_tweets)) +
   facet_grid(. ~ threshold) +
-  stat_bin(binwidth=10) + ylim(c(0, 51000)) +
-  stat_bin(binwidth=10, geom='text', aes(label=..count..), vjust=-.5) +
+  stat_bin(binwidth=1) + ylim(c(0, 51000)) +
+  stat_bin(binwidth=1, geom='text', aes(label=..count..), vjust=-.5) +
   ggtitle('Document sizes (pseudo-duplicates removed)')
 ```
 
