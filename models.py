@@ -59,6 +59,12 @@ class TweetURL(Base):
     tweet_id = Column(BigInteger)
     url_id = Column(Integer)
 
+    def __str__(self):
+        return f"<tweet_id={self.tweet_id}, url_id={self.url_id}>"
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class URL(Base):
     __tablename__ = 'url'
@@ -67,4 +73,10 @@ class URL(Base):
     short_url = Column(String(255))
     expanded_url = Column(String(512))
     title = Column(String(512))
+
+    def __str__(self):
+        return f"<id={self.id}, short={self.short_url}, exp={self.expanded_url}, title={self.title}>"
+
+    def __repr__(self):
+        return self.__str__()
 

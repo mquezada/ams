@@ -61,6 +61,8 @@ def unshorten_urls(name: str, dataset: List[int], n_urls=None, n_threads=32):
             logger.error(f"URL {url} connect timeout")
         except ConnectionError:
             logger.error(f"URL {url} connect error")
+        except:
+            logger.error("Other exception")
 
     def resolve_urls(urls):
         while True:
@@ -126,4 +128,4 @@ def unshorten_urls(name: str, dataset: List[int], n_urls=None, n_threads=32):
 
 if __name__ == '__main__':
     from settings import Datasets, engine
-    unshorten_urls('oscar pistorius', Datasets.oscar_pistorius)
+    unshorten_urls('mumbai_rape', Datasets.mumbai_rape)

@@ -30,10 +30,11 @@ def add_urls(name: str, session) -> Dict[str, models.URL]:
         with path.open('r') as f:
             lines = f.readlines()
             for line in tqdm(lines, desc="add_urls"):
-                short, expanded, title = line.split('\t')
+                #short, expanded, title = line.split('\t')
+                short, expanded = line.split(' ')
                 url = models.URL(short_url=short,
                                  expanded_url=expanded,
-                                 title=title)
+                                 title="")
                 urls[short] = url
                 session.add(url)
     return urls
@@ -203,8 +204,8 @@ if __name__ == '__main__':
     args = docopt(doc)
 
     event_name = args['<event_name>']
-    if event_name == 'oscar pistorius':
-        dataset = Datasets.oscar_pistorius
+    if event_name == 'nepal_earthquake':
+        dataset = Datasets.nepal_earthquake
     else:
         sys.exit(0)
 

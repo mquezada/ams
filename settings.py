@@ -1,13 +1,13 @@
 from sqlalchemy import create_engine
 from pathlib import Path
 
-
-engine = create_engine('mysql://root:oracle_753@localhost/ams')
+engine = create_engine('mysql://root@localhost/ams')
+engine_oracle = create_engine('mysql://root:oracle_753@localhost/ams')
 engine_m3 = create_engine('mysql://mquezada:phoophoh7ahdaiJahphoh3aicooz7uka3ahJe9oi@127.0.0.1/mquezada_db')
 
 
 DATA_DIR = Path('data')
-
+LOCAL_DATA_DIR = Path('/Users', 'mquezada', 'phd', 'AMS', 'data')
 
 
 class Datasets:
@@ -22,3 +22,33 @@ class Datasets:
                        36881, 36882, 36892, 36898, 36899, 36904, 36917, 37042, 37058]
 
     microsoft_nokia = [91, 92, 150, 736, 876, 1516, 1584, 22356, 22850, 22900, 23349]
+
+    mumbai_rape = [195, 272, 863, 1749]
+    libya_hotel = [43911, 43914, 43924, 43926, 43928, 43976, 43924]
+    nepal_earthquake = [56739, 56745, 56748, 56750, 56754, 56756, 56758, 56761, 56762, 56763, 56764, 56767, 56769,
+                       56774, 56775, 56776, 56778, 56779, 56780, 56782, 56783, 56784, 56786, 56787, 56788, 56789,
+                       56790, 56791, 56795, 56797, 56799, 56800, 56801, 56803, 56804, 56805, 56807, 56809, 56811,
+                       56812, 56813, 56817, 56823, 56827, 56828, 56830, 56831, 56835, 56840, 56841, 56842, 56844,
+                       56846, 56752, 56772, 56796, 56798, 56810]
+
+    # using available data
+    # nepal_earthquake = [56837,
+    #                     56766,
+    #                     56802,
+    #                     56771,
+    #                     56988,
+    #                     56993,
+    #                     56986,
+    #                     56904,
+    #                     56863,
+    #                     57011,
+    #                     57094,
+    #                     57044,
+    #                     57001,
+    #                     57061,
+    #                     57183,
+    #                     57180,
+    #                     57943,
+    #                     57915,
+    #                     57900,
+    #                     58030]
