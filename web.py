@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import set_db
 import settings
 from sqlalchemy.orm import sessionmaker
@@ -13,6 +15,7 @@ import logging
 import sys
 import os
 import models
+import pickle
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s | %(levelname)s : %(message)s', level=logging.INFO, stream=sys.stderr)
@@ -104,7 +107,6 @@ def clusters():
             else:
                 files_distance[distance]=[tokens]
 
-    print(files_distance)
     return render_template('clusters.html', files=files_distance)
 
 
@@ -153,6 +155,27 @@ def distances():
 
     return render_template('distances.html', distances=all_dists, info=docs_info)
 
+@app.route('/topics/')
+def topics():
+    return  render_template('topics.html')
+
+@app.route('/topics/<int:n_topics>')
+def list_topics(n_topics):
+    dic_loc = Path('data','dict_docs_T'+str(n_topics)+'.pickle')
+    with dic_loc.open('rb') as f:
+        dic = pickle.loads(f.read())
+    topics_lenght = {k: len(v) for k, v in dic.items()}
+    return render_template('list_topics.html',n_topics = n_topics, topics = topics_lenght)
+
+@app.route('/topics/<int:n_topics>/<int:topic>')
+def see_topic(n_topics, topic):
+    dic_loc = Path('data', 'dict_docs_T' + str(n_topics) + '.pickle')
+    with dic_loc.open('rb') as f:
+        dic = pickle.loads(f.read())
+
+    tweets_ids = dic[str(topic)]
+    tweets = set_db.get_tweets_topic(session,tweets_ids)
+    return render_template('see_topic.html', tweets = tweets, topic = topic)
 
 if __name__ == "__main__":
     Session = sessionmaker(bind=settings.engine, autocommit=True, expire_on_commit=False)

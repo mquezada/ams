@@ -94,6 +94,10 @@ def add_documents(name: str, event_ids: List[int], tweet_urls: Dict[int, models.
 
     return uf
 
+def get_tweets_topic(session,tweets_ids: List[int]):
+    with session.begin():
+        tweets = session.query(models.Tweet).filter(models.Tweet.tweet_id.in_(tweets_ids)).all()
+    return tweets
 
 def get_info(name: str, session, dataset: List[int] = Datasets.oscar_pistorius, limit: int = None):
     with session.begin():
