@@ -12,7 +12,12 @@ import numpy as np
 import logging
 import sys
 import os
-import models
+from models import *
+from settings import engine
+from collections import defaultdict
+from urllib import parse
+from operator import itemgetter
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s | %(levelname)s : %(message)s', level=logging.INFO, stream=sys.stderr)
@@ -20,147 +25,236 @@ logging.basicConfig(format='%(asctime)s | %(levelname)s : %(message)s', level=lo
 app = Flask(__name__)
 
 
-@app.route("/test/")
-def test():
-    Session = sessionmaker(bind=settings.engine, autocommit=True, expire_on_commit=False)
-    session = Session()
-    docs = session.query(models.Document).all()
-    docs_info = {d.id: d.url for d in docs}
-    tweets, url_tweet, set_info = set_db.get_tweets(1, session)
-    return render_template('test.html', docs_info=docs_info)
+# @app.route("/test/")
+# def test():
+#     Session = sessionmaker(bind=settings.engine, autocommit=True, expire_on_commit=False)
+#     session = Session()
+#     docs = session.query(models.Document).all()
+#     docs_info = {d.id: d.url for d in docs}
+#     tweets, url_tweet, set_info = set_db.get_tweets(1, session)
+#     return render_template('test.html', docs_info=docs_info)
+#
+#
+# @app.route("/")
+# def main():
+#     return render_template('index.html')
+#
+#
+# @app.route("/event/")
+# def show_info():
+#     return render_template('index.html',
+#                            tweets=tweets,
+#                            index=tweet_index,
+#                            urls=urls,
+#                            set_info=set_info,
+#                            event_name=event_name.capitalize())
+#
+#
+# @app.route('/document/<int:doc_id>')
+# def document(doc_id):
+#     tweets, url_tweet, set_info = set_db.get_tweets(doc_id, session)
+#     if url_tweet:
+#         _, exp, title = list(url_tweet.values())[0]
+#     else:
+#         exp = ""
+#         title = "No URL"
+#
+#     return render_template('document.html',
+#                            doc_id=doc_id,
+#                            index=tweet_index,
+#                            set_info=set_info,
+#                            url=exp,
+#                            url_title=title,
+#                            tweets=tweets,
+#                            urls=url_tweet)
+#
+#
+# @app.route('/clusters/<string:distance>/<string:linkage>/<int:n_cluster>/<int:cluster>')
+# def see_cluster(distance, linkage, n_cluster, cluster):
+#     cluster_labels = load_cluster(distance, linkage, n_cluster, 'oscar_pistorius')
+#     cluster_elements = [i for i in range(len(cluster_labels)) if cluster_labels[i] == cluster]
+#     tweet_clust_dict = {}
+#     url_clust_dict = {}
+#     n_elements = len(cluster_elements)
+#     for cluster_element in cluster_elements:
+#         tweets = set_db.get_onlytweets(cluster_element, session)
+#         tweet_clust_dict[cluster_element] = tweets
+#
+#     return render_template('see_cluster.html', tweet_dict=tweet_clust_dict, cluster=cluster, n_elements=n_elements)
+#
+#
+# @app.route('/clusters/<string:distance>/<string:linkage>/<int:n_cluster>')
+# def index_cluster(distance, linkage, n_cluster):
+#     cluster_labels = load_cluster(distance, linkage, n_cluster, 'oscar pistorius')
+#     m, doc, tweets_of_doc = info_for_distance('oscar pistorius', Datasets.oscar_pistorius)
+#     silhouette = metrics.silhouette_score(m, cluster_labels, metric='cosine')
+#     unique, counts = np.unique(cluster_labels, return_counts=True)
+#     n_elements = dict(zip(unique, counts))
+#     return render_template("cluster_index.html", distance=distance, linkage=linkage, n_cluster=n_cluster,
+#                            silhouette=silhouette, n_elements=n_elements)
+#
+#
+# @app.route('/clusters')
+# def clusters():
+#     files_distance={}
+#     for file in os.listdir("data/oscar pistorius"):
+#         if file.endswith(".pickle") and file.startswith("labels_clusters"):
+#             file = file[16:-7]
+#             tokens=file.split('-')
+#             distance=tokens[0]
+#             if distance in files_distance:
+#                 elements=files_distance[distance]
+#                 elements.append(tokens)
+#                 files_distance[distance]=elements
+#             else:
+#                 files_distance[distance]=[tokens]
+#
+#     print(files_distance)
+#     return render_template('clusters.html', files=files_distance)
+#
+#
+# @app.route('/distances')
+# def distances():
+#     m_tf_idf, doc_dict, tweet_dict = info_for_distance('oscar pistorius',
+#                                                        Datasets.oscar_pistorius)
+#
+#     Session = sessionmaker(bind=settings.engine, autocommit=True, expire_on_commit=False)
+#     session = Session()
+#
+#     docs = session.query(models.Document).all()
+#     docs_info = {d.id: d.url for d in docs}
+#
+#     lens = list(map(len, tweet_dict.values()))
+#     max_scale = max(lens) / min(lens)
+#
+#     sample_size = 10
+#     docs_to_sample = [k for k in tweet_dict if len(tweet_dict[k]) > 100]
+#
+#     docs = random.sample(docs_to_sample, sample_size)
+#     all_dists = []
+#
+#     for i in range(len(docs)):
+#         doc1 = docs[i]
+#         for j in range(i + 1, len(docs)):
+#             doc2 = docs[j]
+#             distances = []
+#             for t1 in tqdm(tweet_dict[doc1], desc=str((doc1, doc2))):
+#                 for t2 in tweet_dict[doc2]:
+#                     d = tweet_distance(t1,
+#                                        t2,
+#                                        doc_dict,
+#                                        tweet_dict,
+#                                        m_tf_idf,
+#                                        max_scale=max_scale)
+#                     distances.append(d)
+#
+#             all_dists.append((doc1,
+#                               len(tweet_dict[doc1]),
+#                               doc2,
+#                               len(tweet_dict[doc2]),
+#                               np.min(distances),
+#                               np.mean(distances),
+#                               np.max(distances)))
+#
+#     return render_template('distances.html', distances=all_dists, info=docs_info)
 
 
-@app.route("/")
-def main():
-    return render_template('index.html')
+###########
+
+def get_event_ids(event_name, session):
+    events = session.query(Event).filter(Event.title == event_name).all()
+    return [e.event_id for e in events]
 
 
-@app.route("/event/")
-def show_info():
-    return render_template('index.html',
-                           tweets=tweets,
-                           index=tweet_index,
-                           urls=urls,
-                           set_info=set_info,
-                           event_name=event_name.capitalize())
+@app.route('/')
+def all_events():
+    with engine.connect() as conn:
+        query = 'select distinct title from event_id'
+        events = conn.execute(query)
+
+        events = [str(e[0]) for e in events]
+        events_str = [' '.join(map(str.capitalize, e.split('_'))) for e in events]
+        return render_template('all_events.html', events=list(zip(events_str, events)))
 
 
-@app.route('/document/<int:doc_id>')
+@app.route('/documents/<event_name>/')
+def documents(event_name):
+    session_m = sessionmaker(bind=settings.engine, autocommit=True, expire_on_commit=False)
+    session = session_m()
+
+    ids = get_event_ids(event_name, session)
+    tweets = session.query(Tweet)\
+        .filter(Tweet.event_id_id.in_(ids))\
+        .all()
+
+    docs = defaultdict(int)
+    domains = dict()
+    doc_ids = dict()
+    for t in tweets:
+        url_or_int = t.document.url
+        parsed = parse.urlparse(url_or_int).netloc.strip()
+
+        tokens = parsed.split('.')
+        if tokens[0].startswith('www'):
+            parsed = '.'.join(tokens[1:])
+
+        docs[url_or_int] += 1
+        domains[url_or_int] = parsed
+        doc_ids[url_or_int] = t.document.id
+
+    return render_template('documents.html',
+                           documents=docs,
+                           domains=domains,
+                           ids=doc_ids,
+                           event_name=event_name)
+
+
+@app.route('/document/<doc_id>/')
 def document(doc_id):
-    tweets, url_tweet, set_info = set_db.get_tweets(doc_id, session)
-    if url_tweet:
-        _, exp, title = list(url_tweet.values())[0]
-    else:
-        exp = ""
-        title = "No URL"
+    session_m = sessionmaker(bind=settings.engine, autocommit=True, expire_on_commit=False)
+    session = session_m()
 
-    return render_template('document.html',
-                           doc_id=doc_id,
-                           index=tweet_index,
-                           set_info=set_info,
-                           url=exp,
-                           url_title=title,
-                           tweets=tweets,
-                           urls=url_tweet)
+    tweets = session.query(Tweet, URL).filter(Tweet.document_id == doc_id)\
+        .outerjoin(TweetURL, Tweet.tweet_id == TweetURL.tweet_id) \
+        .outerjoin(URL, TweetURL.url_id == URL.id) \
+        .all()
+
+    return render_template('event.html',
+                           event_name='',
+                           tweets_urls=tweets)
 
 
-@app.route('/clusters/<string:distance>/<string:linkage>/<int:n_cluster>/<int:cluster>')
-def see_cluster(distance, linkage, n_cluster, cluster):
-    cluster_labels = load_cluster(distance, linkage, n_cluster, 'oscar pistorius')
-    cluster_elements = [i for i in range(len(cluster_labels)) if cluster_labels[i] == cluster]
-    tweet_clust_dict = {}
-    url_clust_dict = {}
-    n_elements = len(cluster_elements)
-    for cluster_element in cluster_elements:
-        tweets = set_db.get_onlytweets(cluster_element, session)
-        tweet_clust_dict[cluster_element] = tweets
+@app.route('/event/<event_name>/', defaults={'limit': None})
+@app.route('/event/<event_name>/<limit>/')
+def event(event_name, limit):
+    session_m = sessionmaker(bind=settings.engine, autocommit=True, expire_on_commit=False)
+    session = session_m()
 
-    return render_template('see_cluster.html', tweet_dict=tweet_clust_dict, cluster=cluster, n_elements=n_elements)
+    ids = get_event_ids(event_name, session)
 
+    tweets = session.query(Tweet, URL) \
+        .outerjoin(TweetURL, Tweet.tweet_id == TweetURL.tweet_id) \
+        .outerjoin(URL, TweetURL.url_id == URL.id) \
+        .filter(Tweet.event_id_id.in_(ids))
 
-@app.route('/clusters/<string:distance>/<string:linkage>/<int:n_cluster>')
-def index_cluster(distance, linkage, n_cluster):
-    cluster_labels = load_cluster(distance, linkage, n_cluster, 'oscar pistorius')
-    m, doc, tweets_of_doc = info_for_distance('oscar pistorius', Datasets.oscar_pistorius)
-    silhouette = metrics.silhouette_score(m, cluster_labels, metric='cosine')
-    unique, counts = np.unique(cluster_labels, return_counts=True)
-    n_elements = dict(zip(unique, counts))
-    return render_template("cluster_index.html", distance=distance, linkage=linkage, n_cluster=n_cluster,
-                           silhouette=silhouette, n_elements=n_elements)
+    if limit:
+        tweets = tweets.limit(limit)
 
+    tweets = tweets.all()
 
-@app.route('/clusters')
-def clusters():
-    files_distance={}
-    for file in os.listdir("data/oscar pistorius"):
-        if file.endswith(".pickle") and file.startswith("labels_clusters"):
-            file = file[16:-7]
-            tokens=file.split('-')
-            distance=tokens[0]
-            if distance in files_distance:
-                elements=files_distance[distance]
-                elements.append(tokens)
-                files_distance[distance]=elements
-            else:
-                files_distance[distance]=[tokens]
+    return render_template('event.html',
+                           event_name=event_name,
+                           tweets_urls=tweets)
 
-    print(files_distance)
-    return render_template('clusters.html', files=files_distance)
-
-
-@app.route('/distances')
-def distances():
-    m_tf_idf, doc_dict, tweet_dict = info_for_distance('oscar pistorius',
-                                                       Datasets.oscar_pistorius)
-
-    Session = sessionmaker(bind=settings.engine, autocommit=True, expire_on_commit=False)
-    session = Session()
-
-    docs = session.query(models.Document).all()
-    docs_info = {d.id: d.url for d in docs}
-
-    lens = list(map(len, tweet_dict.values()))
-    max_scale = max(lens) / min(lens)
-
-    sample_size = 10
-    docs_to_sample = [k for k in tweet_dict if len(tweet_dict[k]) > 100]
-
-    docs = random.sample(docs_to_sample, sample_size)
-    all_dists = []
-
-    for i in range(len(docs)):
-        doc1 = docs[i]
-        for j in range(i + 1, len(docs)):
-            doc2 = docs[j]
-            distances = []
-            for t1 in tqdm(tweet_dict[doc1], desc=str((doc1, doc2))):
-                for t2 in tweet_dict[doc2]:
-                    d = tweet_distance(t1,
-                                       t2,
-                                       doc_dict,
-                                       tweet_dict,
-                                       m_tf_idf,
-                                       max_scale=max_scale)
-                    distances.append(d)
-
-            all_dists.append((doc1,
-                              len(tweet_dict[doc1]),
-                              doc2,
-                              len(tweet_dict[doc2]),
-                              np.min(distances),
-                              np.mean(distances),
-                              np.max(distances)))
-
-    return render_template('distances.html', distances=all_dists, info=docs_info)
 
 
 if __name__ == "__main__":
-    Session = sessionmaker(bind=settings.engine, autocommit=True, expire_on_commit=False)
-    session = Session()
+    #Session = sessionmaker(bind=settings.engine, autocommit=True, expire_on_commit=False)
+    #session = Session()
 
-    event_name = 'oscar pistorius'
+    #event_name = 'oscar pistorius'
 
-    tweets, urls, set_info = set_db.get_info(event_name, session, limit=5000)
-    tweet_index = {t.tweet_id: i for (i, t) in enumerate(tweets)}
-    app.run(debug=True)
+    #tweets, urls, set_info = set_db.get_info(event_name, session, limit=5000)
+    #tweet_index = {t.tweet_id: i for (i, t) in enumerate(tweets)}
+    app.run()
 

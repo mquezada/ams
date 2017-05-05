@@ -10,17 +10,22 @@ from models import *
 from settings import Datasets, engine, LOCAL_DATA_DIR
 from pathlib import Path
 from operator import itemgetter
+from tqdm import tqdm
 
 
 Session = sessionmaker(bind=settings.engine, autocommit=True, expire_on_commit=False)
 session = Session()
 
-#events = [(settings.Datasets.oscar_pistorius, 'oscar_pistorius'),
-# events = [(settings.Datasets.microsoft_nokia, 'microsoft_nokia')]
-events = [(settings.Datasets.nepal_earthquake, 'nepal_earthquake')]
+events = [(Datasets.oscar_pistorius, 'oscar_pistorius'),
+          (Datasets.microsoft_nokia, 'microsoft_nokia'),
+          (Datasets.mumbai_rape, 'mumbai_rape'),
+          (Datasets.libya_hotel, 'libya_hotel'),
+          (Datasets.nepal_earthquake, 'nepal_earthquake')]
 
 for event, name in events:
-    event_dir = LOCAL_DATA_DIR / Path(name)
+    print(name)
+
+    event_dir = LOCAL_DATA_DIR / Path(name, 'stats')
 
     table_f = (event_dir / Path('stats.txt')).open('w')
     tweets_with_url_f = (event_dir / Path('tweets_with_url.txt')).open('w')
@@ -154,8 +159,8 @@ for event, name in events:
     thresholds = document_dup_jacc.keys()
     document_dup_jacc_sizes = dict()
 
-    for thres in thresholds:
-        for url_id, tweet_ids in (documents.items()):
+    for thres in tqdm(thresholds):
+        for url_id, tweet_ids in tqdm(documents.items()):
             for i in range(len(tweet_ids)):
                 ti = id_tokens[tweet_ids[i]]
                 sim_i = []
@@ -194,7 +199,6 @@ for event, name in events:
 
     table_f.write('\t'.join(headers) + '\n')
     table_f.write('\t'.join(map(str, data)) + '\n')
-
 
     for f in files:
         f.close()

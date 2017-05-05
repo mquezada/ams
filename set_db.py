@@ -24,17 +24,17 @@ def add_event(name: str, event: List[int], session):
 
 def add_urls(name: str, session) -> Dict[str, models.URL]:
     """itera sobre archivo con urls resueltas y agrega filas a URL"""
-    path = Path('data', name, 'resolved_urls.txt')
+    path = Path('data', name, 'data', 'resolved_urls.txt')
     urls = dict()
     with session.begin():
         with path.open('r') as f:
             lines = f.readlines()
             for line in tqdm(lines, desc="add_urls"):
-                #short, expanded, title = line.split('\t')
-                short, expanded = line.split(' ')
+                short, expanded, title = line.split('\t')
+                #short, expanded = line.split(' ')
                 url = models.URL(short_url=short,
                                  expanded_url=expanded,
-                                 title="")
+                                 title=title)
                 urls[short] = url
                 session.add(url)
     return urls
@@ -190,32 +190,27 @@ if __name__ == '__main__':
     from nlp_utils import match_url
     import sys
 
-    from docopt import docopt
+    datasets = [#('oscar_pistorius', Datasets.oscar_pistorius),
+                ('mumbai_rape', Datasets.mumbai_rape),
+                ('libya_hotel', Datasets.libya_hotel),
+                ('microsoft_nokia', Datasets.microsoft_nokia),
+                ('nepal_earthquake', Datasets.nepal_earthquake)]
 
-    doc = """set_db
-    Usage:
-        set_db.py add <event_name>
-    """
+    for event_name, dataset in datasets:
 
-    args = docopt(doc)
+        logging.basicConfig(format='%(asctime)s | %(levelname)s : %(message)s', level=logging.INFO, stream=sys.stderr)
 
-    event_name = args['<event_name>']
-    if event_name == 'nepal_earthquake':
-        dataset = Datasets.nepal_earthquake
-    else:
-        sys.exit(0)
+        logging.info(event_name)
 
-    logging.basicConfig(format='%(asctime)s | %(levelname)s : %(message)s', level=logging.INFO, stream=sys.stderr)
+        Session = sessionmaker(bind=engine, autocommit=True)
+        session = Session()
 
-    Session = sessionmaker(bind=engine, autocommit=True)
-    session = Session()
+        add_event(event_name, dataset, session)
+        url_objs = add_urls(event_name, session)
 
-    add_event(event_name, dataset, session)
-    url_objs = add_urls(event_name, session)
-
-    df, urls_df = load(event_name, dataset, engine)
-    tweet_urls = add_tweets_url(event_name, df, url_objs, session)
-    uf = add_documents(event_name, dataset, tweet_urls, session)
+        df, urls_df = load(event_name, dataset, engine)
+        tweet_urls = add_tweets_url(event_name, df, url_objs, session)
+        uf = add_documents(event_name, dataset, tweet_urls, session)
 
 
 def main_info():

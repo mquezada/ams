@@ -16,7 +16,7 @@ def load(name: str, dataset: List[int], engine, urls=True):
 
     if urls:
 
-        urls_dir = Path('data', name, 'resolved_urls.txt')
+        urls_dir = Path('data', name, 'data', 'resolved_urls.txt')
         urls_df = pd.read_table(urls_dir.as_posix(), sep='\t')
         logger.info(f"Loaded urls df '{name}' of dim {urls_df.shape}")
 
