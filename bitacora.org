@@ -106,6 +106,16 @@
 * 18 abr 2017
 - MQ: presentación de examen de propuesta
 
+* 21 abr 2017
+- definir tipo de evaluacion que podemos usar
+  - hay alguno que podemos usar de los papers vistos?
+  - MGraph
+  - paper Teresa de evaluacion (su ultimo paper ICM) de outputs de algoritmos
+- hay algun ground truth?
+  - Mirar TREC summarization
+- mirar paper de mor naaman
+- escribir modelo
+
 * 24 abr 2017
 ** Avance
 - definicion modelo: https://github.com/mquezada/ams/blob/clustering/tex/model.pdf

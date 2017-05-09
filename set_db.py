@@ -9,7 +9,7 @@ import numpy as np
 from union_find import UnionFind
 from load_dataset import load
 from settings import engine, Datasets
-
+import pickle
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ def add_urls(name: str, session) -> Dict[str, models.URL]:
             lines = f.readlines()
             for line in tqdm(lines, desc="add_urls"):
                 short, expanded, title = line.split('\t')
-                #short, expanded = line.split(' ')
+                # short, expanded = line.split(' ')
                 url = models.URL(short_url=short,
                                  expanded_url=expanded,
                                  title=title)
@@ -65,7 +65,6 @@ def add_documents(name: str, event_ids: List[int], tweet_urls: Dict[int, models.
     for tweet in tqdm(tweets, desc="Iterating over tweets (create sets)"):
         uf.make_set(tweet.tweet_id)
 
-
         url_obj = tweet_urls.get(tweet.tweet_id)
         if url_obj:
             uf.make_set(url_obj.expanded_url)
@@ -95,10 +94,12 @@ def add_documents(name: str, event_ids: List[int], tweet_urls: Dict[int, models.
 
     return uf
 
-def get_tweets_topic(session,tweets_ids: List[int]):
+
+def get_tweets_topic(session, tweets_ids: List[int]):
     with session.begin():
         tweets = session.query(models.Tweet).filter(models.Tweet.tweet_id.in_(tweets_ids)).all()
     return tweets
+
 
 def get_info(name: str, session, dataset: List[int] = Datasets.oscar_pistorius, limit: int = None):
     with session.begin():
@@ -122,7 +123,7 @@ def get_info(name: str, session, dataset: List[int] = Datasets.oscar_pistorius, 
 
         logger.info("get_info (URLs)")
 
-        url_obj = session.query(models.URL, models.TweetURL).\
+        url_obj = session.query(models.URL, models.TweetURL). \
             filter(models.URL.id == models.TweetURL.url_id).all()
         url_info = dict()
         url_tweet = dict()
@@ -152,6 +153,7 @@ def get_onlytweets(document_id: int, session):
                 rts += 1
 
         return tweets
+
 
 def get_tweets(document_id: int, session):
     with session.begin():
@@ -194,14 +196,13 @@ if __name__ == '__main__':
     from nlp_utils import match_url
     import sys
 
-    datasets = [#('oscar_pistorius', Datasets.oscar_pistorius),
-                ('mumbai_rape', Datasets.mumbai_rape),
-                ('libya_hotel', Datasets.libya_hotel),
-                ('microsoft_nokia', Datasets.microsoft_nokia),
-                ('nepal_earthquake', Datasets.nepal_earthquake)]
+    datasets = [  # ('oscar_pistorius', Datasets.oscar_pistorius),
+        ('mumbai_rape', Datasets.mumbai_rape),
+        ('libya_hotel', Datasets.libya_hotel),
+        ('microsoft_nokia', Datasets.microsoft_nokia),
+        ('nepal_earthquake', Datasets.nepal_earthquake)]
 
     for event_name, dataset in datasets:
-
         logging.basicConfig(format='%(asctime)s | %(levelname)s : %(message)s', level=logging.INFO, stream=sys.stderr)
 
         logging.info(event_name)
@@ -235,3 +236,37 @@ def main_info():
     print(time.time() - t0)
 
     return events, tweets, urls
+
+
+def save_clusters_tm(event_name, session, method='twitter_lda', n_topics=[10, 25, 50, 75, 100]):
+    with session.begin():
+        for n in n_topics:
+            cluster = session.query(models.Cluster) \
+                .filter_by(method=method).filter_by(n_clusters=n) \
+                .first()
+
+            path = Path('data', event_name, 'clusters', 'tm', 'dict_docs_T' + str(n) + '.pickle')
+            with path.open('rb') as f:
+                data = pickle.loads(f.read())
+
+            for topic, tweet_ids in data.items():
+                print(n, topic)
+                for tweet_id in tweet_ids:
+                    tc = models.TweetCluster(tweet_id=tweet_id,
+                                             cluster_id=cluster.id,
+                                             label=int(topic))
+                    session.add(tc)
+
+
+def save_clusters_hier(event_name, session, methods, distances, n_clusters=[2, 5, 10, 13, 15, 20]):
+    from itertools import product
+    path = Path('data', event_name, 'clusters', 'hierarchical')
+    with session.begin():
+        for method, distance, n_cluster in product(methods, distances, n_clusters):
+            path_ = path / Path('labels_clusters_' + distance + '-' + method + '-' + str(n_cluster) + '.pickle')
+            cluster = session.query(models.Cluster).filter_by(method='hierarchical_' + method,
+                                                              distance=distance,
+                                                              n_clusters=n_cluster).first()
+
+            with path_.open('rb') as f:
+                data = pickle.loads(f.read())

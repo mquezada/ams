@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Latest compiled and minified CSS -->
+
+    <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
     <!-- Optional theme -->
@@ -21,34 +22,63 @@
             padding: 40px;
         }
     </style>
-    <meta charset="UTF-8">
-    <title>{{n_topics}} Tópicos</title>
+
+    <title>Documents for {{event_name}}</title>
 </head>
+
 <body>
+
     <div class="container-fluid">
         <div class="row">
 
-            <h1>{{n_topics}} Tópicos</h1>
+            <h1>Event: {{event_name}}</h1>
+
+            <div class="col-md-3">
+                <table class="table table-bordered table-hover table-condensed">
+                    <tbody>
+                        <tr>
+                            <td><strong>Total documents</strong></td>
+                            <td>{{ documents|length }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
             <table id="tweets" class="hover compact row-border" cellspacing="0" width="100%">
                 <thead>
                     <tr>
-                        <th>Tópico</th>
-                        <th>Número de Elementos</th>
+                        <th></th>
+                        <th>Document URL</th>
+                        <th>Domain</th>
+                        <th>Total tweets</th>
                     </tr>
                 </thead>
                 <tbody>
-
-                    {% for topic, lenght in topics.items() %}
-                        <tr>
-                            <td><a href="/topics/{{event_name}}/{{n_topics}}/{{topic}}">Tópico Número {{topic}} </a> </td>
-                            <td> {{lenght}}</td>
-                        </tr>
+                    {% for url, total in documents.items() %}
+                    <tr>
+                        <td><a href="/document/{{ ids[url] }}"><span class="glyphicon glyphicon-new-window"></span></a></td>
+                        {% if url.startswith('http') %}
+                        <td><small><a href="{{url}}">{{ url|truncate(100) }}</a></small></td>
+                        {% else %}
+                        <td><small>{{ url|truncate(100) }}</small></td>
+                        {% endif %}
+                        <td><small>{{ domains[url] }}</small></td>
+                        <td><small>{{ total }}</small></td>
+                    </tr>
                     {% endfor %}
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <th></th>
+                        <th>Document URL</th>
+                        <th>Domain</th>
+                        <th>Total tweets</th>
+                    </tr>
+                </tfoot>
             </table>
-
         </div>
     </div>
+
 
     <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.js"></script>
@@ -63,4 +93,6 @@
     });
     </script>
 </body>
+
+
 </html>

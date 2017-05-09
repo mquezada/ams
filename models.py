@@ -25,14 +25,32 @@ class Tweet(Base):
     created_at = Column(DateTime)
     event_id_id = Column(Integer)
 
-    document_id = Column(Integer, ForeignKey('document.id'))
-    document = relationship('Document', back_populates='tweets')
+    #document_id = Column(Integer, ForeignKey('document.id'))
+    #document = relationship('Document', back_populates='tweets')
 
     def __str__(self):
         return f"<id={self.tweet_id}, text={self.text}>"
 
     def __repr__(self):
         return self.__str__()
+
+
+class Cluster(Base):
+    __tablename__ = 'cluster'
+
+    id = Column(Integer, primary_key=True)
+    method = Column(String(200))
+    distance = Column(String(200))
+    n_clusters = Column(Integer)
+
+
+class DocumentCluster(Base):
+    __tablename__ = 'document_cluster'
+
+    id = Column(Integer, primary_key=True)
+    document_id = Column(BigInteger)
+    cluster_id = Column(Integer)
+    label = Column(Integer)
 
 
 class Event(Base):
@@ -48,8 +66,21 @@ class Document(Base):
 
     id = Column(Integer, primary_key=True)
     url = Column(String(512))
+    tweet_id = Column(BigInteger)
+    total_rts = Column(Integer)
+    total_favs = Column(Integer)
+    total_replies = Column(Integer)
+    total_tweets = Column(Integer)
 
-    tweets = relationship('Tweet', back_populates='document')
+
+    #tweets = relationship('Tweet', back_populates='document')
+
+
+class DocumentTweet(Base):
+    __tablename__ = 'document_tweet'
+    id = Column(Integer, primary_key=True)
+    document_id = Column(Integer)
+    tweet_id = Column(Integer)
 
 
 class TweetURL(Base):
@@ -71,8 +102,9 @@ class URL(Base):
 
     id = Column(Integer, primary_key=True)
     short_url = Column(String(255))
-    expanded_url = Column(String(512))
-    title = Column(String(512))
+    expanded_url = Column(String(1024))
+    title = Column(String(1024))
+    expanded_clean = Column(String(1024))
 
     def __str__(self):
         return f"<id={self.id}, short={self.short_url}, exp={self.expanded_url}, title={self.title}>"

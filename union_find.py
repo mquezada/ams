@@ -22,7 +22,7 @@ class UnionFind:
         root_u = self.find(u)
         root_v = self.find(v)
 
-        if root_u == root_v or not root_u or not root_v:
+        if root_u == root_v or root_u is None or root_v is None:
             return
 
         if self.rank[root_u] > self.rank[root_v]:

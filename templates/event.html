@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        .container-fluid {
+            padding: 40px;
+        }
+    </style>
+
+    <title>{{event_name}}</title>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+
+            <h1>Event: {{event_name}}</h1>
+
+            <div class="col-md-3">
+                <table class="table table-bordered table-hover table-condensed">
+                    <tbody>
+                        <tr>
+                            <td><strong>Total tweets</strong></td>
+                            <td>{{ tweets_urls|length }}</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+
+            <table id="tweets" class="hover compact row-border" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>Doc</th>
+                        <th>Text</th>
+                        <th>URL</th>
+                        <th>Reply</th>
+                        <th>RT</th>
+                        <th>RTs</th>
+                        <th>Favs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tweet in tweets_urls %}
+                    <tr>
+
+                        <td>
+                            <small><a href="/document/{{ tweet.document_id }}">{{ tweet[0].document_id }}</a></small>
+                        </td>
+                        <td>{{ tweet[0].text }}</td>
+
+                        {% if tweet[1] %}
+                        <td>
+                            <small>{{ tweet[1].title|truncate(60, end='...') }}</small> <br />
+                            <a href="{{ tweet[1].expanded_url }}" title="{{ tweet[1].title }}">
+                                <small>{{ tweet[1].expanded_url|truncate(60) }}</small>
+                            </a>
+                        </td>
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+
+                        {% if tweet[0].in_reply_to_status_id %}
+                        <td><span class="glyphicon glyphicon-ok"></span></td>
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+                        {% if tweet[0].retweet_of_id %}
+                        <td><small><span class="glyphicon glyphicon-ok"></span></small></td>
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+
+                        <td><small>{{ tweet[0].retweet_count }}</small></td>
+                        <td><small>{{ tweet[0].favorite_count }}</small></td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Doc</th>
+                        <th>Text</th>
+                        <th>URL</th>
+                        <th>Reply</th>
+                        <th>RT</th>
+                        <th>RTs</th>
+                        <th>Favs</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.js"></script>
+
+
+    <script>
+        $(document).ready(function(){
+        $('#tweets').DataTable({
+        "iDisplayLength": 100,
+        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
+        });
+    });
+    </script>
+</body>
+
+
+</html>
