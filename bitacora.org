@@ -1,0 +1,79 @@
+* 29 dic 2016
+** Ideas para continuar
+   1. aumentar tweets con palabras del word2vec, y usar tf-idf para modelar tweets/documentos
+   2. representar tweets/documentos como promedio de vectores de las palabras en w2v
+   3. lo mismo que 2, más aumentar tweets con palabras del w2v
+   4. usar doc2vec para representar tweets/docs
+   5. hacer grafo del evento usando w2v del evento + POS
+   6. lo mismo que 5, usando w2v del corpus
+* 5 ene 2017
+** Semana anterior
+   - doc2vec o word2vec en el mismo evento no funciona bien (pocos datos)
+   - mgraph funcionando!
+** Eliminar ruido de eventos
+*** Experimento
+   1. agrupar tweets por URL (= documento)
+      - tweets sin URL son el documento correspondiente al mismo tweet
+   2. aumentar documentos usando palabras mas similares en w2v general
+   3. aplicar tf-idf
+   4. hacer clustering (k-means)
+*** Evaluacion
+    - propiedades estructurales del clustering
+      - SSE
+      - diametro
+      - silhouette
+      - distancia intercluster
+        - min
+        - max
+        - avg (centroide)
+*** Parametros
+    - Umbral de similitud W2V
+      - umbral fijo
+      - umbral fijo + codo (2da derivada)
+    - numero de clusters en kmeans
+    - distancia euclidiana o disimilitud coseno
+    - eliminar tweets duplicados
+    
+* 6 ene 2017
+  - mirar localized pagerank?
+  - elegir un evento, y graficar en 2D las palabras + palabras mas cercanas usando modelo completo
+   
+* 17 ene 2017
+
+- find fake news?
+- classify events by topic using WE analogies
+- removing noise (spam) from tweets
+- MMR
+
+- muc (message undestanding conf), tdt, trec 
+- explainability of neural networks
+- analogous events
+- generating summaries
+- finding sub-topics
+- data cleaning/curation/detection
+- applying structure to a bag of tweets
+- user weight on credibility
+
+
+* 9 may 2017
+** Avance
+- documentos ahora estan representados por 1 tweet:
+  - si varios tweets retuitean a un tweet, éste último es el representante
+  - si varios tweets comparten una url u, cualquiera de éstos es el representante
+- Los resultados de hacer clustering con kmeans (mini batch kmeans) mejoran con respecto a la representacion anterior (1 documento = todos los tweets, o los tweets individuales), sin embargo, clusters contienen overlap de topicos al mirar evento libya_hotel
+- Al usar CLUTO con clustering aglomerativo, los resultados se ven mucho mejor un par de eventos inspeccionados (oscar_pistorius y libya_hotel). Con un evento no es fácil decir cómo son los clusters (microsoft_nokia).
+
+** Queda por definir
+1. determinar número de clusters apropiados (fijo o variable)
+2. elegir representantes por cluster
+3. aplicaciones o formas de evaluar el clustering / resumen
+
+** Trabajo para la próxima reunión
+- Fijar número de clusters de forma manual y probar distintas formas de clustering
+  - idea: elegir el clustering con un numero fijo de clusters para facilitar la eleccion del clustering. Despues nos preocupamos de (1)
+- Elegir representantes por cluster de manera naive / simple
+  - ejemplo: numero de tweets asociados al cluster, numero de rts, favs, replies
+- Pensar en (3)
+  - ejemplo: comparar con pagina en wikipedia, o considerar otro ground truth (reportaje en cnn, bbc, etc)
+  - al mirar wikipedia, comparar el overlap de topicos de wikipedia vs nuestro resumen y ver si es posible sugerir edits 
+  - metadata de eventos para exploracion (galean?)
