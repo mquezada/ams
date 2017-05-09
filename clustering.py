@@ -78,7 +78,7 @@ def process_texts(event_name, stem=False):
     texts_one_per_line = []
     for text in texts:
         texts_one_per_line.append(' '.join(text))
-    return texts_one_per_line, documents
+    return texts_one_per_line, final_documents
 
 
 def create_matrix(texts):
