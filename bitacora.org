@@ -1,3 +1,44 @@
+* 7 nov 2016
+
+- Pasos a seguir:
+  - Elegir baselines
+  - Escribir motivación del problema
+  - Implementar baselines
+  - Decidir ground truth(s)
+  - Decidir forma(s) de evaluar
+  - Evaluar!
+
+- Indicar en la motivación que el trabajo relacionado no cumple todos nuestros requisitos.
+- Por qué algunas técnicas no son suficientes para resolver el problema.
+
+* 10 nov 2016
+
+- Clasificar los papers por otros criterios:
+  - Mencionan (y cuales) criterios de calidad de resumen
+  - Consideran aspecto multimedia (no solo texto)
+- Leer paper de Teresa para ver evaluacion
+
+
+* 17 nov 2016
+- Cuales son los mejores atributos que permiten generar resumenes
+- Combinar los mejores features de alguna forma (aprenderlos) para generar los resumenes
+- Baselines:
+  - Random
+  - Frequency
+  - Learning to rank: estos son los datos, estos son los resumenes (gold-standard): “aprende de los datos”
+- Implementar los baselines y diseñar el experimento
+- … con eso diseñar la solucion propuesta y experimentar “en grande”
+- Hablar con la Vanessa sobre el experimento para separar los atributos y medir sus aportes individuales?
+
+* 18 nov 2016
+- TODOs Baselines:
+  - Implementar preprocesamiento de texto
+  - Tratar con la no-redundancia
+  - Considerar documentos en vez de tweets?
+  - Leer e implementar? La metodologia de TweetMotif
+  - Mirar los baselines que sean mas directos de implementar y que calcen muy bien con nuestros objetivos:
+  - Hacer resumenes de (seleccionar) tweets O de documentos que son apuntados por los tweets
+
 * 29 dic 2016
 ** Ideas para continuar
    1. aumentar tweets con palabras del word2vec, y usar tf-idf para modelar tweets/documentos
@@ -54,6 +95,30 @@
 - applying structure to a bag of tweets
 - user weight on credibility
 
+* 24 mar 2017
+- Diseñar la medida de distancia
+- Implementar o buscar un clustering que use esta medida
+- Diseñar interfaz para ver los resultados
+
+* 31 mar 2017
+- LM: charla de tesis I
+
+* 18 abr 2017
+- MQ: presentación de examen de propuesta
+
+* 24 abr 2017
+** Avance
+- definicion modelo: https://github.com/mquezada/ams/blob/clustering/tex/model.pdf
+
+* 28 abr 2017
+** Avance
+- Se agregaron referencias de Social Anchor Text y Multimodal summarization: https://docs.google.com/spreadsheets/d/1TZadD1nYuPd6N6qogtkGdmoqBhWQy4RF2wkoVCt2qKc/edit#gid=175296704
+
+* 5 may 2017
+** Avance
+- es difícil inspeccionar los clusters debido a la alta redundancia de los datos (muchos tweets repetidos)
+- se probó con TwitterLDA y clustering jerárquico
+- se quedó en usar sólo un representante por documento
 
 * 9 may 2017
 ** Avance
