@@ -152,3 +152,62 @@
   - ejemplo: comparar con pagina en wikipedia, o considerar otro ground truth (reportaje en cnn, bbc, etc)
   - al mirar wikipedia, comparar el overlap de topicos de wikipedia vs nuestro resumen y ver si es posible sugerir edits 
   - metadata de eventos para exploracion (galean?)
+* 18 may 2017
+
+** Cosas pendientes:
+   - Metodología para elegir nº clusters:
+     - Fijo (más proceso para eliminar redundantes)
+     - Variable, dependiendo de cada evento
+   - Criterio para elegir representantes de clusters (o una mezcla de estos):
+     - RTs
+     - Favs
+     - total tweets
+     - total replies
+     - contenido
+     - authority
+     - URL info (domain, etc)
+     
+   - Elegir el metodo de clustering:
+     - TwitterLDA
+     - Aglomerativo
+     - KMeans
+     - Incremental
+     - Grafo
+
+** Plan
+   - Fijar numero de clusters para distintos eventos
+   - elegir representantes usando criterios simples
+
+** Topicos por evento
+*** Oscar Pistorius Trial
+    1. Apology (quizas 2)
+    2. Brother car crash
+    3. Mental evaluation / Psychiatric test
+    4. Paddi power
+    5. Vomit in court
+    6. Baba security guard everything is fine
+    7. Stand in court without prosthetic legs
+    8. Prosecutor cross examination (quizas 2 o 3)
+    9. Friend take blame restaurant shooting
+    10. Text to Reeva days before
+
+*** Mumbai Rape
+    1. Incidente mismo
+    2. Algo relacionado con la victima
+    3. Atrapan al 4º culpable
+    4. Atrapan 5º culpable
+
+*** Libya Hotel attack
+    1. Auto bomba
+    2. Claim ISIS
+    3. Storm bullets?
+    4. Muertes de extranjeros y guardias
+    5. Spam (x3)
+
+*** Nepal earthquake
+    1. Everest avalanch
+    2. Muertos (x2)
+    3. Kathmandu (Dharahara) building collapses
+    4. Help/Aid
+    5. Million dollar rescue team
+    6. Reporte del terremoto mismo
