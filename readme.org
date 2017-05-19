@@ -95,6 +95,19 @@
 - applying structure to a bag of tweets
 - user weight on credibility
 
+* 20 mar 2017
+  - instaladas librerias para jupyter:
+    - qgrid: filtros en pandas df
+      - https://github.com/quantopian/qgrid
+    - Compact Language Detector 2: identificar idiomas
+      - https://github.com/CLD2Owners/cld2
+    - watermark: info de hardware en jupyter
+      - https://github.com/rasbt/watermark/
+    - probablepeople: resolver nombres de personas
+      - https://github.com/datamade/probablepeople
+        
+  - =jupyter console --existing= abre un ipython que comparte las variables del notebook abierto
+  - =%load_ext autoreload; %autoreload 2= actualiza los modulos (no lo he probado)
 * 24 mar 2017
 - Diseñar la medida de distancia
 - Implementar o buscar un clustering que use esta medida
@@ -211,3 +224,26 @@
     4. Help/Aid
     5. Million dollar rescue team
     6. Reporte del terremoto mismo
+* 19 may 2017
+** Metodología de generación de summaries:
+   - Doc model
+   - Método de clustering:
+     - no. de clusters
+     - algoritmo
+     - medida de similitud
+   - Elección de representantes
+     - Cómo?
+     - Cuántos?
+
+** Evaluación
+   - Evaluación manual: se pueden probar pocas opciones
+   - Evalaución (semi-)automática: se pueden probar todas las opciones
+     - generación manual de ground truth + evaluación automática
+
+** Puntos pendientes
+   - Metodología de resúmenes
+   - Eliminar clusters/docs de spam o ruido
+   - Buscar medidas automáticas de evaluación: ROUGE, NMI?, etc.
+   - Medir precisión/recall de tópicos entre resúmenes y groundtruth
+   - Generar ground truths (wikipedia (colectivo), medios de noticias (expertos))
+   - Grid search entre grountruth y metodologías para encontrar parámetros óptimos
