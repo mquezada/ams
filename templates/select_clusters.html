@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clusterings</title>
+</head>
+<body>
+    <h1>Clusters Disponibles para {{event_name}}</h1>
+    <ul>
+        {% for cluster in clusters %}
+            <li><a href="/{{event_name}}/{{type}}/{{cluster}}">{{cluster}}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

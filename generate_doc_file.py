@@ -1,54 +1,42 @@
-import datetime
-import os
-
 from collections import defaultdict
-from sqlalchemy.orm import sessionmaker
+from pathlib import Path
 
-import models
 from clustering import process_texts
-
-from settings import engine
 
 event_name = 'oscar_pistorius'
 texts, documents = process_texts(event_name)
 
-Session = sessionmaker(bind=engine, autocommit=True)
-session = Session()
 
-docs_id = defaultdict(list)
-for doc in documents:
-    docs_id[doc.tweet_id] = [doc.tweet_id,doc.total_rts, doc.total_favs, doc.total_replies, doc.total_tweets]
+def file_for_lda():
+    path_docs = Path('data', event_name, 'docs')
+    if not path_docs.exists():
+        path_docs.mkdir()
+    count = 0
+    list_file = Path('data', event_name, 'docs', 'filelist_' + event_name + '.txt')
+    with list_file.open('w') as list_file:
+        for doc in documents:
+            name = event_name + '_' + str(count) + '.txt'
+            doc_file = Path('data', event_name, 'docs', name)
+            with doc_file.open('w') as file:
+                file.write(doc.url)
+                file.close()
+                count += 1
+            list_file.write(name + '\n')
+        list_file.close()
 
-tweets = session.query(models.Tweet).filter(models.Tweet.tweet_id.in_(docs_id.keys())).all()
-tweets_day = defaultdict(list)
-for tweet in tweets:
-    day = tweet.created_at.day
-    month = tweet.created_at.month
-    year = tweet.created_at.year
-    date = datetime.datetime(year,month,day)
-    tweet_info = docs_id[tweet.tweet_id]
-    tweet_info.append(tweet.text)
-    tweets_day[str(date)].append(tweet_info)
 
-directory = 'data/'+event_name+'/'+event_name
-directory_attr = 'data/'+event_name+'/attr'
-if not os.path.exists(directory):
-    os.makedirs(directory)
+def format_files(n_topics, filename):
+    path_files = Path('/home', 'luism', 'Universidad', 'ams', event_name, 'TextWithLabel_' + str(n_topics))
+    files = [x for x in path_files.iterdir() if x.is_file()]
+    labels_path = Path('data', event_name, 'clusters', 'LDA', filename)
+    with labels_path.open('w') as labels:
+        for file in files:
+            with file.open('r') as f:
+                line = f.readline()
+                token = line.split('\t')[1]
+                topic = token[2:token.index(':')]
+                labels.write(topic + '\n')
 
-if not os.path.exists(directory_attr):
-    os.makedirs(directory_attr)
 
-file_list = open(directory+'/filelist_'+event_name+'.txt','w')
-for key,value in tweets_day.items():
-    file = open(directory+'/' + event_name + '_' + key[0:10] + '.txt', 'w')
-    file_doc_attr = open(directory_attr+'/'+event_name+ '_' + key[0:10] + '_attr.txt', 'w')
-    file_list.write("%s\n" % file.name[len(directory)+1:])
-    for text in value:
-        for attr in text:
-            file_doc_attr.write(str(attr)+'\t')
-        file_doc_attr.write('\n')
-        file.write("%s\n" % text[5])
-    file.close()
-    file_doc_attr.close()
-
-file_list.close()
+# file_for_lda()
+format_files(5, event_name + '.mat.clustering.5')
