@@ -1,9 +1,14 @@
 import pickle
-from flask import Flask, render_template
+from collections import defaultdict
+
+from flask import Flask, render_template, jsonify
+from flask import request
 from sqlalchemy.orm import sessionmaker
 from pathlib import Path
 from collections import Counter
-from get_representative_tweets import get_representative, get_tweets
+
+from Forms.forms import SelectionForm
+from get_representative_tweets import get_representative, get_tweets, list_files_event, get_tweets_db
 
 import logging
 
@@ -17,11 +22,7 @@ app = Flask(__name__)
 app.url_map.strict_slashes = False
 
 
-@app.route('/<event_name>/documents/')
-def documents(event_name):
-    return
-
-@app.route('/')
+@app.route('/index')
 def events():
     return render_template('events.html')
 
@@ -48,25 +49,55 @@ def list_cluster(event_name, file, type):
         clusters.close()
     return render_template('see_topics.html', count=count, event_name=event_name, type=type, file=file, total=total)
 
+@app.route('/explorer',methods = ['POST','GET'])
+def explorer():
+    form = SelectionForm(request.form)
+
+    if request.method == 'POST':
+        event_name = form.event.data
+        clustering = form.clustering.data.split('/')[1]
+        file = form.n_clusters.data.split('/')[2]
+        order = form.order.data
+        n_topics = [x for x in range(int(file.split('.')[3]))]
+        return render_template('see_representative.html', form=form, event_name=event_name, clustering=clustering,
+                               file=file, order=order, n_topics = n_topics)
+
+    return render_template('see_representative.html',form = form)
+
+
 @app.route('/<event_name>/<type>/<file>/<int:topic>')
 @app.route('/<event_name>/<type>/<file>/<int:topic>/<int:criteria>')
-def see_cluster(event_name, file, type, topic, criteria = 2):
+def see_cluster(event_name, file, type, topic, criteria=2):
     n_topics = file.split('.')[3]
-    dict_path = Path('data',event_name,'clusters',type,'dict_topic_'+n_topics+'.pickle')
+    dict_path = Path('data', event_name, 'clusters', type, 'dict_topic_' + n_topics + '.pickle')
     tweets = {}
+
     if dict_path.exists():
         with dict_path.open('rb') as f:
             tweets = pickle.loads(f.read())
     else:
-        path_clusters = Path('data',event_name,'clusters',type,file)
-        path_docs = Path('data',event_name,'clusters',type,event_name+'_docs.txt')
-        tweets = get_representative(path_clusters,path_docs, event_name, type)
+        path_clusters = Path('data', event_name, 'clusters', type, file)
+        path_docs = Path('data', event_name, 'clusters', type, event_name + '_docs.txt')
+        tweets = get_representative(path_clusters, path_docs, event_name, type)
 
     docs = tweets[topic]
-    docs.sort(key=lambda x: int(x[criteria]),reverse= True)
+    len_topic = len(docs)
+    docs.sort(key=lambda x: int(x[criteria]), reverse=True)
     docs_sorted = docs[:7]
-    tweet_dict = get_tweets(docs_sorted)
-    return render_template('see_representative.html', tweets = tweet_dict, event_name = event_name, file = file, type = type, topic = topic)
+    tweet_dict = get_tweets_db(docs_sorted)
+
+    return render_template('tweets_selected.html', tweets=tweet_dict, event_name=event_name, file=file, type=type,
+                           topic=topic, len_topic = len_topic)
+
+@app.route('/get_file')
+def get_file():
+    val = request.args.get('select_val', 0).split('/')
+    path_file = Path('data', val[0], 'clusters')
+    if len(val) > 1:
+        path_file = Path('data',val[0],'clusters',val[1])
+
+    files = [x.name for x in path_file.iterdir() if x.suffix != '.txt' and x.suffix != '.pickle']
+    return jsonify(result=files)
 
 if __name__ == "__main__":
     Session = sessionmaker(bind=settings.engine, autocommit=True, expire_on_commit=False)
