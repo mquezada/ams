@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, BigInteger, Boolean, ForeignKey
+from sqlalchemy import Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -71,8 +72,13 @@ class Document(Base):
     total_favs = Column(Integer)
     total_replies = Column(Integer)
     total_tweets = Column(Integer)
+    embebed_html = Column(Text)
 
+    def __str__(self):
+        return f"<id={self.tweet_id}, text={self.url}, embebed_html={self.embebed_html}>"
 
+    def __repr__(self):
+        return self.__str__()
     #tweets = relationship('Tweet', back_populates='document')
 
 

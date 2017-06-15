@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script
+			  src="https://code.jquery.com/jquery-3.2.1.min.js"
+			  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+			  crossorigin="anonymous"></script>
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
     <!-- Optional theme -->
@@ -9,21 +14,76 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        .container-fluid {
+            padding: 40px;
+        }
+    </style>
     <meta charset="UTF-8">
     <title>Cluster</title>
 </head>
-<body>
+<body style="width:2800px; height:1000px; overflow: auto;">
     <h1>Tweets Seleccionados</h1>
-     <div class="btn-group">
-         <a href="/{{event_name}}/{{type}}/{{file}}/{{topic}}/2" type="button" class="btn btn-primary">Total Tweets</a>
-         <a href="/{{event_name}}/{{type}}/{{file}}/{{topic}}/3" type="button" class="btn btn-primary">Total Retweets</a>
-         <a href="/{{event_name}}/{{type}}/{{file}}/{{topic}}/4" type="button" class="btn btn-primary">Total Replies</a>
-         <a href="/{{event_name}}/{{type}}/{{file}}/{{topic}}/5" type="button" class="btn btn-primary">Total Favs</a>
-    </div>
-    {% for id,html in tweets.items() %}
+    <form method="POST" action="/explorer">
         <div>
-            {{html|safe}}
+            {{form.event(**{"onchange":"load_file(this)"})}}
+            <span class="error">
+              {% if form.event.errors %}
+                {% for error in form.event.errors %}
+                  {{ error }}
+                {% endfor %}
+              {% endif %}
+            </span>
+            {{form.clustering(**{"onchange":"load_file(this)"})}}
+            <span class="error">
+              {% if form.clustering.errors %}
+                {% for error in form.clustering.errors %}
+                  {{ error }}
+                {% endfor %}
+              {% endif %}
+            </span>
+            {{form.n_clusters}}
+            <span class="error">
+              {% if form.event.errors %}
+                {% for error in form.n_clusters.errors %}
+                  {{ error }}
+                {% endfor %}
+              {% endif %}
+            </span>
+            {{form.order}}
+            <input class="btn btn-primary" type="submit" value="Cargar" />
         </div>
+    </form>
+    {% for topic in n_topics %}
+        <iframe width="540px" height="500px" src="{{event_name}}/{{clustering}}/{{file}}/{{topic}}/{{order}}"></iframe>
     {% endfor %}
+    <script>
+        function load_file(select){
+            var id = select.id;
+            select_value = $('#'+id).val()
+            var number = parseInt(id[7])+1
+            $.getJSON( "/get_file", {select_val: select_value},
+                function(data){
+                    $('#events_'+number).find('option').remove()
+                    $('#events_'+number).append($('<option>', {
+                            value: '',
+                            text : '',
+                            selected: true
+                      }));
+                    $.each(data.result, function (i, item) {
+                        $('#events_'+number).append($('<option>', {
+                            value: select_value+'/'+item,
+                            text : item
+                        }));
+                    });
+                });
+        }
+    </script>
 </body>
 </html>
