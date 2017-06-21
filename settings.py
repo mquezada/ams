@@ -8,6 +8,7 @@ engine_m3 = create_engine('mysql://mquezada:phoophoh7ahdaiJahphoh3aicooz7uka3ahJ
 
 DATA_DIR = Path('data')
 LOCAL_DATA_DIR = Path('/Users', 'mquezada', 'phd', 'AMS', 'data')
+LOCAL_DATA_DIR_2 = Path('/home','luism','PycharmProjects','ams','data')
 
 
 class Datasets:
