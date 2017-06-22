@@ -72,10 +72,9 @@ def explorer():
             docs_sorted[label] = doc[:7]
             docs_sorted[label] = get_tweets_db(docs_sorted[label])
 
+        sorted_topic = docs_sorted
         if sort:
             sorted_topic = sort_by_topics(docs_sorted)
-
-        sorted_topic = docs_sorted
 
         return render_template('see_representative.html', topics = sorted_topic, form = form, sort = sort)
 

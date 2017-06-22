@@ -69,6 +69,7 @@
             <input class="btn btn-primary" type="submit" value="Cargar" />
         </div>
     </form>
+    {% if topics %}
     {% if sort %}
         {% for topic in topics %}
         <div class="col-sm-2 container">
@@ -80,8 +81,7 @@
             </ul>
         </div>
         {% endfor %}
-    {% endif %}
-    {% if topics %}
+    {% else %}
         {% for label, docs in topics.items() %}
             <div class="col-sm-2 container">
                 <h2>Cluster {{label}}</h2>
@@ -92,6 +92,7 @@
                 </ul>
             </div>
         {% endfor %}
+    {% endif %}
     {% endif %}
     <script>
         function load_clusters(select){
