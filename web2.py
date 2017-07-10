@@ -7,13 +7,14 @@ from sqlalchemy.orm import sessionmaker
 from pathlib import Path
 from collections import Counter
 
+import db_utils
 from Forms.forms import SelectionForm
-from get_representative_tweets import get_representative, get_tweets, list_files_event, get_tweets_db
+from get_representative_tweets import get_representative, get_tweets, list_files_event, get_tweets_db, sort_by_topics
 
 import logging
 
 import settings
-
+from models import Cluster
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s | %(levelname)s : %(message)s', level=logging.INFO)
@@ -54,13 +55,28 @@ def explorer():
     form = SelectionForm(request.form)
 
     if request.method == 'POST':
-        event_name = form.event.data
-        clustering = form.clustering.data.split('/')[1]
-        file = form.n_clusters.data.split('/')[2]
+        event_name= form.event.data
+        clustering = form.clustering.data
         order = form.order.data
-        n_topics = [x for x in range(int(file.split('.')[3]))]
-        return render_template('see_representative.html', form=form, event_name=event_name, clustering=clustering,
-                               file=file, order=order, n_topics = n_topics)
+        sort = form.sort.data
+        docs = db_utils.get_documents_cluster(clustering)
+        topic_dict = defaultdict(list)
+        for doc in docs:
+            topic_dict[doc[0]].append(doc[1])
+
+        for label, doc in topic_dict.items():
+            doc.sort(key=lambda x: getattr(x,order), reverse=True)
+
+        docs_sorted = defaultdict(list)
+        for label, doc in topic_dict.items():
+            docs_sorted[label] = doc[:7]
+            docs_sorted[label] = get_tweets_db(docs_sorted[label])
+
+        sorted_topic = docs_sorted
+        if sort:
+            sorted_topic = sort_by_topics(docs_sorted)
+
+        return render_template('see_representative.html', topics = sorted_topic, form = form, sort = sort)
 
     return render_template('see_representative.html',form = form)
 
@@ -84,25 +100,31 @@ def see_cluster(event_name, file, type, topic, criteria=2):
     len_topic = len(docs)
     docs.sort(key=lambda x: int(x[criteria]), reverse=True)
     docs_sorted = docs[:7]
-    tweet_dict = get_tweets_db(docs_sorted)
-
+    tweet_dict, date_topic = get_tweets_db(docs_sorted)
     return render_template('tweets_selected.html', tweets=tweet_dict, event_name=event_name, file=file, type=type,
                            topic=topic, len_topic = len_topic)
 
-@app.route('/get_file')
-def get_file():
-    val = request.args.get('select_val', 0).split('/')
-    path_file = Path('data', val[0], 'clusters')
-    if len(val) > 1:
-        path_file = Path('data',val[0],'clusters',val[1])
+@app.route('/get_clusters')
+def get_clusters_options():
+    val = request.args.get('select_val', 0)
+    clusters = db_utils.get_clusters_event(int(val))
+    dict_clust = defaultdict(set)
+    for cluster in clusters:
+        dict_clust[cluster.method] = cluster.id
+    return jsonify(result=dict_clust)
 
-    files = [x.name for x in path_file.iterdir() if x.suffix != '.txt' and x.suffix != '.pickle']
-    return jsonify(result=files)
+@app.route('/get_number')
+def get_number_options():
+    val = request.args.get('select_val', 0)
+    clusters = session.query(Cluster).filter(Cluster.id == int(val))
+    dict_clust = defaultdict(set)
+    for cluster in clusters:
+        dict_clust[cluster.n_clusters] = cluster.n_clusters
+    return jsonify(result=dict_clust)
 
 if __name__ == "__main__":
     Session = sessionmaker(bind=settings.engine, autocommit=True, expire_on_commit=False)
     session = Session()
-
     # event_name = 'oscar pistorius'
 
     # tweets, urls, set_info = set_db.get_info(event_name, session, limit=5000)
