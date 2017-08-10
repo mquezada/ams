@@ -181,11 +181,12 @@ def create_documents(tweet_urls):
 
 if __name__ == '__main__':
 
-   # events = [ #('libya_hotel', Datasets.libya_hotel), ]
+    events = [ #('libya_hotel', Datasets.libya_hotel), ]
               #('mumbai_rape', Datasets.mumbai_rape),
               #('microsoft_nokia', Datasets.microsoft_nokia),
               #('oscar_pistorius', Datasets.oscar_pistorius),]
-              #('nepal_earthquake', Datasets.nepal_earthquake)]
+              #('nepal_earthquake', Datasets.nepal_earthquake)
+              ('mumbai_rape2', Datasets.mumbai2)]
 
     events = [('mumbai_rape',Datasets.mumbai_rape)]
     for name, dataset in events:
