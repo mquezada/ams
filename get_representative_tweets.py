@@ -85,6 +85,17 @@ def get_tweets_db(sorted_docs):
     session.commit()
     return docs
 
+def get_tweets_db_list(sorted_docs):
+    tweets_ids = [x[1] for x in sorted_docs]
+    docs = session.query(Document).filter(Document.tweet_id.in_(tweets_ids)).all()
+    for doc in docs:
+        if doc.embebed_html == 'Tweet no encontrado':
+            continue
+        if doc.embebed_html is None:
+            doc.embebed_html = get_html(doc.tweet_id)
+    session.commit()
+    return docs
+
 def sort_by_topics(sorted_dic):
     for label, docs in sorted_dic.items():
         tweet = docs[0].tweet_id

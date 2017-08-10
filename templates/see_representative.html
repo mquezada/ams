@@ -65,54 +65,59 @@
               {% endif %}
             </span>
             {{form.order}}
+            {{form.n_tweets.label}}
+            {{form.n_tweets}}
+            {{form.sort.label}}
             {{form.sort}}
             <input class="btn btn-primary" type="submit" value="Cargar" />
         </div>
     </form>
     {% if topics %}
-    {% if sort %}
-        {% for topic in topics %}
-        <div class="col-sm-2 container">
-            <h2>Cluster {{topic[0]}}</h2>
-            <ul style="list-style-type:none">
-                {% for doc in topic[1][1] %}
-                <li>{{doc.embebed_html|safe}}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endfor %}
-    {% else %}
-        {% for label, docs in topics.items() %}
+        <h2>Número de Documentos en el Evento: {{ len_event }}</h2>
+        {% if sort %}
+            {% for topic in topics %}
             <div class="col-sm-2 container">
-                <h2>Cluster {{label}}</h2>
+                <h2>Cluster {{topic[0]}}</h2>
                 <ul style="list-style-type:none">
-                    {% for doc in docs %}
+                    {% for doc in topic[1] %}
                     <li>{{doc.embebed_html|safe}}</li>
                     {% endfor %}
                 </ul>
             </div>
-        {% endfor %}
-    {% endif %}
+            {% endfor %}
+        {% else %}
+            {% for label, docs in topics.items() %}
+                <div class="col-sm-2 container">
+                    <h2>Cluster {{label}}</h2>
+                    <ul style="list-style-type:none">
+                        {% for doc in docs %}
+                        <li>{{doc.embebed_html|safe}}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        {% endif %}
     {% endif %}
     <script>
+        var event_id
         function load_clusters(select){
             var id = select.id;
             select_value = $('#'+id).val()
             var number = parseInt(id[7])+1
+            event_id = select_value
             load_options("/get_clusters",select_value,number)
         }
 
         function load_number(select){
             var id = select.id;
-            select_value = $('#'+id).val()
+            select_value = $('#'+id+' option:selected').text()
             var number = parseInt(id[7])+1
             load_options("/get_number",select_value,number)
         }
 
         function load_options(url, select_value, number){
-            $.getJSON( url, {select_val: select_value},
+            $.getJSON( url, {select_val: select_value, event: event_id},
                 function(data){
-                    console.log(data.result)
                     $('#events_'+number).find('option').remove()
                     $('#events_'+number).append($('<option>', {
                             value: '',

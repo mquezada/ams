@@ -17,6 +17,8 @@ logging.basicConfig(format='%(asctime)s | %(levelname)s : %(message)s', level=lo
 Session = sessionmaker(bind=engine, autocommit=True)
 session = Session()
 
+def get_event_name(event_id):
+    return session.query(Event).filter(Event.event_id == event_id).first()
 
 def get_event_ids(event_name):
     event = session.query(Event).filter(Event.title == event_name).all()
@@ -41,12 +43,14 @@ def get_clusters_event(event_id_id):
    clusters = session.query(Cluster).filter(Cluster.id.in_(clusters_ids)).all()
    return clusters
 
-def get_documents_cluster(cluster_id):
+def get_documents_cluster(cluster_id, n_clusters):
     #get all the documents of a specific cluster method
     #return tuṕle (label,document)
     q_docs = session.query(DocumentCluster.label, Document).\
         join(Document, DocumentCluster.document_id == Document.id).\
+        join(Cluster, Cluster.id == DocumentCluster.cluster_id).\
         filter(DocumentCluster.cluster_id == cluster_id).\
+        filter(Cluster.n_clusters == n_clusters).\
         all()
 
     return q_docs
@@ -177,12 +181,13 @@ def create_documents(tweet_urls):
 
 if __name__ == '__main__':
 
-    events = [ #('libya_hotel', Datasets.libya_hotel), ]
+   # events = [ #('libya_hotel', Datasets.libya_hotel), ]
               #('mumbai_rape', Datasets.mumbai_rape),
               #('microsoft_nokia', Datasets.microsoft_nokia),
               #('oscar_pistorius', Datasets.oscar_pistorius),]
-              ('nepal_earthquake', Datasets.nepal_earthquake)]
+              #('nepal_earthquake', Datasets.nepal_earthquake)]
 
+    events = [('mumbai_rape',Datasets.mumbai_rape)]
     for name, dataset in events:
         logger.info(name)
 

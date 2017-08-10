@@ -196,7 +196,7 @@ if __name__ == '__main__':
     from nlp_utils import match_url
     import sys
 
-    datasets = [  # ('oscar_pistorius', Datasets.oscar_pistorius),
+    datasets = [  ('oscar_pistorius', Datasets.oscar_pistorius),
         ('mumbai_rape', Datasets.mumbai_rape),
         ('libya_hotel', Datasets.libya_hotel),
         ('microsoft_nokia', Datasets.microsoft_nokia),

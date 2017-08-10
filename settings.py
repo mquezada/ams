@@ -8,7 +8,7 @@ engine_m3 = create_engine('mysql://mquezada:phoophoh7ahdaiJahphoh3aicooz7uka3ahJ
 
 DATA_DIR = Path('data')
 LOCAL_DATA_DIR = Path('/Users', 'mquezada', 'phd', 'AMS', 'data')
-LOCAL_DATA_DIR_2 = Path('/home','luism','PycharmProjects','ams','data')
+LOCAL_DATA_DIR_2 = Path('/home','luism','PycharmProjects','ams')
 
 
 class Datasets:
@@ -24,7 +24,7 @@ class Datasets:
 
     microsoft_nokia = [91, 92, 150, 736, 876, 1516, 1584, 22356, 22850, 22900, 23349]
 
-    mumbai_rape = [195, 272, 863, 1749]
+    mumbai_rape = [195, 272, 863, 1749, 38]
     libya_hotel = [43911, 43914, 43924, 43926, 43928, 43976, 43924]
     nepal_earthquake = [56739, 56745, 56748, 56750, 56754, 56756, 56758, 56761, 56762, 56763, 56764, 56767, 56769,
                        56774, 56775, 56776, 56778, 56779, 56780, 56782, 56783, 56784, 56786, 56787, 56788, 56789,
